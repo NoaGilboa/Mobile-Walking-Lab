@@ -1,0 +1,123 @@
+body {
+    font-family: "Alef", sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+    direction: rtl;
+  }
+  
+  h1, h2, h3 {
+    color: #4a4a4a;
+    font-weight: bold;
+  }
+  
+  button {
+    margin: 10px;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  input, textarea {
+    margin: 10px 0;
+    padding: 12px;
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  li {
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  li:hover {
+    background-color: #e6e6e6;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .landing-container, .login-container, .register-container, .patient-list-container, .add-patient-container, .patient-details-container {
+    text-align: center;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    max-width: 550px;
+    margin: 20px auto;
+  }
+  
+  .landing-button, .add-patient-button, .register-button, .login-button, .save-notes-button {
+    width: 180px;
+    margin: 10px;
+    font-weight: bold;
+  }
+  
+  .note-history {
+    text-align: right;
+    padding-right: 20px;
+  }
+  
+  .note-item {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+    /* Styles for Patient List Table */
+    .patient-table {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        border-collapse: collapse;
+      }
+    
+      .patient-table th, .patient-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: center;
+      }
+    
+      .patient-table th {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+      }
+    
+      .patient-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+    
+      .patient-table tr:hover {
+        background-color: #e6e6e6;
+      }
+    
+      .patient-table tr {
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+    
+  
