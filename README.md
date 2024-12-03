@@ -93,7 +93,9 @@
 - **Authentication Enhancements**: Add OAuth or JWT for more secure authentication.
 - **Improved UI/UX**: Expand UI features to enhance accessibility and user interaction.
 
+## Video Demonstration
 
+Watch a video demonstration:
 
 https://github.com/user-attachments/assets/960b7cda-1618-4793-9c18-e3287054f67b
 
