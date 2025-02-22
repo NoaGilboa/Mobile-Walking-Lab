@@ -1,7 +1,9 @@
 // PatientDetailsPage.js
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate  } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient } from '../api/patientApi';
+import { getTreatmentRecommendation } from '../api/patientApi';
+
 import '../index.css';
 
 function PatientDetailsPage() {
@@ -10,6 +12,8 @@ function PatientDetailsPage() {
   const [patient, setPatient] = useState(null);
   const [notes, setNotes] = useState('');
   const [noteHistory, setNoteHistory] = useState([]);
+  const [treatmentRecommendation, setTreatmentRecommendation] = useState('');
+
 
   useEffect(() => {
     // בקשה לנתונים של המטופל לפי ה-ID
@@ -47,6 +51,17 @@ function PatientDetailsPage() {
       });
   };
 
+  const handleGetRecommendation = () => {
+    getTreatmentRecommendation(userId)
+      .then(response => {
+        setTreatmentRecommendation(response.data.recommendation);
+      })
+      .catch(error => {
+        console.error("Error fetching treatment recommendation", error);
+        alert("❌ לא ניתן לקבל המלצה לטיפול כעת. אנא נסה שוב מאוחר יותר.");
+      });
+  };
+
   if (!patient) return <div>טוען נתונים...</div>;
 
   return (
@@ -64,7 +79,15 @@ function PatientDetailsPage() {
       <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <button className="save-notes-button" onClick={handleSaveNotes}>שמור הערות</button>
       <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button>
-
+      <button className="recommendation-button" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
+      {treatmentRecommendation ? (
+        <div className="recommendation-box">
+          <h3>המלצת טיפול:</h3>
+          <p>{treatmentRecommendation}</p>
+        </div>
+      ) : (
+        <p>אין עדיין המלצת טיפול.</p>
+      )}
     </div>
   );
 }
