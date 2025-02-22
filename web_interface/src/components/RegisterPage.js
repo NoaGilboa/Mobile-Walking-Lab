@@ -14,10 +14,32 @@ function RegisterPage() {
     // Perform therapist registration
     registerTherapist(email, password,name)
       .then(() => {
-        // After successful registration, navigate to the login page
-        navigate('/login');
+        alert('✅ רישום בוצע בהצלחה! כעת ניתן להתחבר.');
+        navigate('/login'); // After successful registration, navigate to the login page
       })
       .catch((error) => {
+        if (error.response) {
+          // שרת הגיב עם סטטוס שגיאה (לדוגמה: 400, 409 וכו')
+          switch (error.response.status) {
+            case 400:
+              alert('⚠️ שגיאה: מידע חסר או לא תקין.');
+              break;
+            case 409:
+              alert('⚠️ האימייל כבר רשום במערכת, נסה להתחבר.');
+              break;
+            case 500:
+              alert('❌ שגיאת שרת! נסה שוב מאוחר יותר.');
+              break;
+            default:
+              alert('❌ שגיאה לא ידועה, אנא נסה שוב.');
+          }
+        } else if (error.request) {
+          // הבעיה היא בחיבור לשרת (הבקשה לא נשלחה)
+          alert('❌ שגיאת חיבור! בדוק את החיבור לאינטרנט ונסה שוב.');
+        } else {
+          // שגיאה כללית שלא קשורה לבקשה
+          alert(`❌ שגיאה: ${error.message}`);
+        }        
         console.error('Registration failed', error);
       });
   };

@@ -1,35 +1,35 @@
-// dataAccess/therapistDataAccess.js
-
-const Therapist = require('../models/therapist');
+const sql = require('mssql');
+const dbConfig = require('../config/db');
 
 class TherapistDataAccess {
     static async addTherapist(therapistData) {
-        const therapist = new Therapist(therapistData);
-        return await therapist.save();
+        try {
+            const pool = await sql.connect(dbConfig);
+            const result = await pool.request()
+                .input('name', sql.NVarChar, therapistData.name)
+                .input('email', sql.NVarChar, therapistData.email)
+                .input('password', sql.NVarChar, therapistData.password)
+                .query(`
+                    INSERT INTO therapists (name, email, password) 
+                    VALUES (@name, @email, @password);
+                `);
+            return result.rowsAffected[0] > 0;
+        } catch (error) {
+            throw new Error(`Error adding therapist: ${error.message}`);
+        }
     }
 
     static async getTherapistByEmail(email) {
-        return await Therapist.findOne({ email });
+        try {
+            const pool = await sql.connect(dbConfig);
+            const result = await pool.request()
+                .input('email', sql.NVarChar, email)
+                .query(`SELECT * FROM therapists WHERE email = @email;`);
+            return result.recordset[0];
+        } catch (error) {
+            throw new Error(`Error retrieving therapist: ${error.message}`);
+        }
     }
 }
 
 module.exports = TherapistDataAccess;
-
-// let therapists = [];
-
-// class TherapistDataAccess {
-//   static getAllTherapists() {
-//     return therapists;
-//   }
-
-//   static addTherapist(therapist) {
-//     therapists.push(therapist);
-//     return therapist;
-//   }
-
-//   static getTherapistByEmail(email) {
-//     return therapists.find((t) => t.email === email);
-//   }
-// }
-
-// module.exports = TherapistDataAccess;

@@ -11,6 +11,7 @@ router.post('/register', async (req, res) => {
         const newTherapist = await TherapistService.registerTherapist({ email, password, name });
         res.status(201).json(newTherapist);
     } catch (error) {
+        console.error("Registration failed:", error);
         res.status(500).json({ error: error.message });
     }
 });
