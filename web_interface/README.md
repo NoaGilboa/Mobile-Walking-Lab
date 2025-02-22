@@ -1,137 +1,112 @@
+# Mobile Walking Lab - Patient Management System
 
-# Mobile Walking Lab - Patient Dashboard Frontend
+**Mobile Walking Lab** is a comprehensive application developed for managing patient records and their rehabilitation progress. The system is designed for therapists to manage patient data, add and track rehabilitation notes, and monitor patient conditions through an easy-to-use interface. The solution includes both backend and frontend components, leveraging modern web technologies for effective data management.
 
-This repository contains the frontend code for the **Mobile Walking Lab** application. The frontend provides a user interface for therapists to manage patients and their notes.
+## Project Overview
 
-## Table of Contents
+- **Backend**: Built with **Node.js**, **Express**, and **Azure SQL Database**, the backend provides a secure and scalable API for managing patient and therapist data. It handles registration, authentication, and CRUD operations for patients and their associated notes.
+- **Frontend**: Developed with **React**, the frontend provides a dynamic and user-friendly interface for therapists to interact with the system, log in, register, and manage patient information.
+- **AI Integration**: Uses **OpenAI API** to generate treatment recommendations based on patient history and notes.
 
-- [Getting Started](#getting-started)
-- [Available Scripts](#available-scripts)
-- [Dependencies](#dependencies)
-- [Project Structure](#project-structure)
-- [Usage](#usage)
-- [Features](#features)
+## Key Features
 
-## Getting Started
+### Backend
+- **RESTful API** using **Express.js** for managing patients and therapists.
+- **Azure SQL Database** as the backend database for structured and scalable data storage.
+- **Authentication** for therapists using secure login mechanisms.
+- **CRUD Operations** for patients and notes.
+- **OpenAI API Integration** to generate AI-powered treatment recommendations.
 
-To run this project locally:
+### Frontend
+- **React** application for an interactive user experience.
+- **Routing** using **React Router DOM** to navigate between different pages.
+- **Local Storage** for maintaining therapist session state after logging in.
+- **Axios** for making API requests to the backend.
 
-1. **Clone the repository**:
+## Technologies Used
 
-    ```sh
-    git clone https://github.com/NoaGilboa/Mobile-Walking-Lab.git
-    cd web_interface
-    ```
+### Backend
+- **Node.js**: Server-side JavaScript runtime for creating a scalable backend.
+- **Express.js**: Framework for building RESTful APIs.
+- **Azure SQL Database**: Cloud-based relational database for storing patient and therapist information.
+- **MSSQL (Azure SQL)**: Database connection and query management.
+- **OpenAI API**: AI-based treatment recommendation system.
+- **CORS** and **body-parser**: Middleware for handling cross-origin requests and parsing request bodies.
 
-2. **Install dependencies**:
+### Frontend
+- **React**: JavaScript library for building interactive user interfaces.
+- **React Router DOM**: For navigation between pages.
+- **Axios**: For HTTP requests to the backend.
+- **CSS**: Styling for a clean and consistent look.
 
-    ```sh
-    npm install
-    ```
+## Functional Overview
 
-3. **Start the development server**:
+- **Therapist Authentication**:
+  - Register a new therapist.
+  - Log in using email and password.
+  - Store therapist session data using **localStorage**.
 
-    ```sh
-    npm start
-    ```
-
-    The frontend server will start at `http://localhost:3000`.
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.
-
-### `npm test`
-
-Launches the test runner.
-
-### `npm run eject`
-
-Removes the single build dependency from the project.
-
-## Dependencies
-
-The project uses the following main dependencies:
-
-- **React** (`^18.0.0`): A JavaScript library for building user interfaces.
-- **React DOM** (`^18.0.0`): React package for working with the DOM.
-- **React Router DOM** (`^6.0.0`): A collection of navigational components for React applications.
-- **Axios** (`^1.0.0`): A promise-based HTTP client for making requests to the server.
-
-For full details of the dependencies, refer to the `package.json` file.
+- **Patient Management**:
+  - **Add a Patient**: Add new patient data, including user ID, name, age, and condition.
+  - **View Patients**: See a list of all patients managed by the therapist.
+  - **View Patient Details**: See detailed information about a patient, including their condition and notes.
+  - **Add Notes**: Add rehabilitation notes for a patient, which will be stored and displayed.
+  - **AI Treatment Recommendations**: Get AI-generated recommendations based on patient history.
 
 ## Project Structure
 
-The project's file structure is organized as follows:
+### Backend
+- **Controllers**: Manage the API routes for patients and therapists.
+- **Database Configuration**: Azure SQL Database connection setup.
+- **Services**: Business logic layer, handling operations like patient creation, therapist login, etc.
+- **OpenAI Integration**: AI-based recommendation system using OpenAI API.
 
-```
-web_interface/
-├── public/
-│   └── index.html              # Entry point for the web application
-├── src/
-│   ├── components/             # React components used in the app
-│   │   ├── LandingPage.js      # Landing page component
-│   │   ├── LoginPage.js        # Login page for therapists
-│   │   ├── RegisterPage.js     # Therapist registration page
-│   │   ├── PatientListPage.js  # Page displaying list of patients
-│   │   ├── PatientDetailsPage.js # Details for each patient, including notes
-│   │   └── AddPatientPage.js   # Form for adding a new patient
-│   ├── api/                    # API services
-│   │   ├── patientApi.js       # API functions for patient management
-│   │   └── therapistApi.js     # API functions for therapist management
-│   ├── App.js                  # Main app component that manages routing
-│   ├── index.js                # Entry point for React rendering
-│   ├── apiConfig.js            # Configuration for API base URL
-│   └── index.css               # Main CSS file for styling
-└── package.json                # Project metadata and dependencies
-```
+### Frontend
+- **React Components**: Includes pages like `LandingPage`, `LoginPage`, `PatientListPage`, `PatientDetailsPage`, and more.
+- **API Services**: Uses `axios` to communicate with the backend endpoints.
+- **Routing**: Implemented with `react-router-dom` for easy navigation.
 
-### Key Files
+## Setup
 
-- **`index.html`**: The HTML entry point for the React app.
-- **`App.js`**: Main component handling application routes.
-- **`index.js`**: Renders the `App` component inside the root element of the HTML.
-- **`patientApi.js`** & **`therapistApi.js`**: API functions to interact with the backend for patients and therapists.
+### Prerequisites
+- **Node.js** and **npm**: Make sure you have Node.js and npm installed.
+- **Azure SQL Database**: Set up a database instance on **Azure**.
+- **OpenAI API Key**: Obtain an API key from **OpenAI**.
+
+### Running the Project
+
+1. **Backend Setup**:
+   - Navigate to the backend directory.
+   - Create a `.env` file and add the following:
+     ```
+     AZURE_SQL_SERVER=your_server_name.database.windows.net
+     AZURE_SQL_DATABASE=your_database_name
+     AZURE_SQL_USER=your_username
+     AZURE_SQL_PASSWORD=your_password
+     OPENAI_API_KEY=your_openai_api_key
+     ```
+   - Run `npm install` to install dependencies.
+   - Start the backend server using `npm start`. The server runs on `http://localhost:5001`.
+
+2. **Frontend Setup**:
+   - Navigate to the frontend directory.
+   - Run `npm install` to install dependencies.
+   - Start the frontend development server using `npm start`. The app runs on `http://localhost:3000`.
 
 ## Usage
 
-### Running the Application
+- **Therapist Logs In**: The therapist can log in using their credentials, and the data is stored in local storage.
+- **Manage Patients**: Therapists can add, update, and view patients, as well as add notes to patient records.
+- **Get AI-Based Treatment Recommendations**: The system provides **AI-generated** treatment suggestions based on patient data using **OpenAI API**.
 
-1. **Backend**: Make sure the backend server is running on `http://localhost:5001`.
-2. **Frontend**: Run `npm start` to start the frontend development server.
+## Future Enhancements
 
-The frontend provides an interface for therapists to:
+- **Live Patient Monitoring**: Integration with wearable devices for real-time health tracking.
+- **Improved Authentication**: Implementing OAuth or JWT for enhanced security.
+- **Enhanced AI Features**: Expanding AI capabilities for more personalized recommendations.
 
-- Login using their credentials.
-- Add, view, and manage patients and their notes.
+## Video Demonstration
 
-## Features
+Watch a video demonstration:
 
-- **Therapist Login and Registration**:
-  - Therapists can log in and register.
-  - Therapist session data is saved in local storage after login.
-
-- **Patient Management**:
-  - Add new patients with `userId`, name, age, and condition.
-  - View a list of all patients.
-  - Click on a patient to view detailed information, including existing notes.
-  - Add new notes to a patient’s record.
-
-- **React Router**:
-  - The application uses `react-router-dom` for managing routes between components, providing a seamless experience.
-
-- **Styling**:
-  - The application includes custom styling for a clean and user-friendly interface, utilizing **CSS** for consistency across all pages.
-
-## Styling
-
-The application uses `index.css` for global styles. Key elements such as buttons, input fields, and the layout are styled for a professional and easy-to-navigate UI.
-
+https://github.com/user-attachments/assets/960b7cda-1618-4793-9c18-e3287054f67b
