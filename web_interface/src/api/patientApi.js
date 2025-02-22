@@ -25,3 +25,8 @@ export const getPatientById = (userId) => {
   export const addNoteToPatient = (userId, note) => {
     return axios.post(`${BASE_URL}/patients/${userId}/notes`, { note });
   };
+
+  export const getTreatmentRecommendation = (userId) => {
+    return axios.get(`${BASE_URL}/patients/${userId}/get-treatment-recommendation`);
+  };
+  

@@ -14,10 +14,26 @@ function AddPatientPage() {
   const handleAddPatient = () => {
     addPatient(userId, name, age, condition)
       .then(() => {
+        alert('✅ המטופל נוסף בהצלחה!');
         navigate('/patients');
       })
       .catch((error) => {
-        console.error("Error adding patient", error);
+        if (error.response) {
+          if (error.response.status === 400) {
+            alert('⚠️ שגיאה: הנתונים שסיפקת אינם תקינים. אנא בדוק ונסה שנית.');
+          } else if (error.response.status === 409) {
+            alert('⚠️ שגיאה: המטופל כבר קיים במערכת.');
+          } else if (error.response.status === 500) {
+            alert('❌ שגיאה בשרת. אנא נסה שוב מאוחר יותר.');
+          } else {
+            alert('❌ שגיאה לא ידועה. אנא נסה שוב.');
+          }
+        } else if (error.request) {
+          alert('❌ אין חיבור לשרת. בדוק את חיבור האינטרנט שלך ונסה שוב.');
+        } else {
+          alert('❌ שגיאה בהוספת המטופל. אנא נסה שוב.');
+        }
+         console.error("Error adding patient", error);
       });
   };
 
