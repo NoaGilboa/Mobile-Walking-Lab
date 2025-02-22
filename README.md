@@ -1,20 +1,21 @@
-
 # Mobile Walking Lab - Patient Management System
 
 **Mobile Walking Lab** is a comprehensive application developed for managing patient records and their rehabilitation progress. The system is designed for therapists to manage patient data, add and track rehabilitation notes, and monitor patient conditions through an easy-to-use interface. The solution includes both backend and frontend components, leveraging modern web technologies for effective data management.
 
 ## Project Overview
 
-- **Backend**: Built with **Node.js**, **Express**, and **MongoDB**, the backend provides a secure and scalable API for managing patient and therapist data. It handles registration, authentication, and CRUD operations for patients and their associated notes.
+- **Backend**: Built with **Node.js**, **Express**, and **Azure SQL Database**, the backend provides a secure and scalable API for managing patient and therapist data. It handles registration, authentication, and CRUD operations for patients and their associated notes.
 - **Frontend**: Developed with **React**, the frontend provides a dynamic and user-friendly interface for therapists to interact with the system, log in, register, and manage patient information.
+- **AI Integration**: Uses **OpenAI API** to generate treatment recommendations based on patient history and notes.
 
 ## Key Features
 
 ### Backend
 - **RESTful API** using **Express.js** for managing patients and therapists.
-- **MongoDB** as the database, with **Mongoose** for schema definitions and database operations.
+- **Azure SQL Database** as the backend database for structured and scalable data storage.
 - **Authentication** for therapists using secure login mechanisms.
 - **CRUD Operations** for patients and notes.
+- **OpenAI API Integration** to generate AI-powered treatment recommendations.
 
 ### Frontend
 - **React** application for an interactive user experience.
@@ -27,8 +28,9 @@
 ### Backend
 - **Node.js**: Server-side JavaScript runtime for creating a scalable backend.
 - **Express.js**: Framework for building RESTful APIs.
-- **MongoDB**: NoSQL database for storing patient and therapist information.
-- **Mongoose**: ODM (Object Data Modeling) library for MongoDB.
+- **Azure SQL Database**: Cloud-based relational database for storing patient and therapist information.
+- **MSSQL (Azure SQL)**: Database connection and query management.
+- **OpenAI API**: AI-based treatment recommendation system.
 - **CORS** and **body-parser**: Middleware for handling cross-origin requests and parsing request bodies.
 
 ### Frontend
@@ -49,14 +51,15 @@
   - **View Patients**: See a list of all patients managed by the therapist.
   - **View Patient Details**: See detailed information about a patient, including their condition and notes.
   - **Add Notes**: Add rehabilitation notes for a patient, which will be stored and displayed.
+  - **AI Treatment Recommendations**: Get AI-generated recommendations based on patient history.
 
 ## Project Structure
 
 ### Backend
 - **Controllers**: Manage the API routes for patients and therapists.
-- **Data Access Layer (DAL)**: Handles the interaction with MongoDB for patients and therapists.
+- **Database Configuration**: Azure SQL Database connection setup.
 - **Services**: Business logic layer, handling operations like patient creation, therapist login, etc.
-- **Database Configuration**: Set up MongoDB connection through Mongoose.
+- **OpenAI Integration**: AI-based recommendation system using OpenAI API.
 
 ### Frontend
 - **React Components**: Includes pages like `LandingPage`, `LoginPage`, `PatientListPage`, `PatientDetailsPage`, and more.
@@ -67,12 +70,21 @@
 
 ### Prerequisites
 - **Node.js** and **npm**: Make sure you have Node.js and npm installed.
-- **MongoDB**: Install and run MongoDB locally.
+- **Azure SQL Database**: Set up a database instance on **Azure**.
+- **OpenAI API Key**: Obtain an API key from **OpenAI**.
 
 ### Running the Project
 
 1. **Backend Setup**:
    - Navigate to the backend directory.
+   - Create a `.env` file and add the following:
+     ```
+     AZURE_SQL_SERVER=your_server_name.database.windows.net
+     AZURE_SQL_DATABASE=your_database_name
+     AZURE_SQL_USER=your_username
+     AZURE_SQL_PASSWORD=your_password
+     OPENAI_API_KEY=your_openai_api_key
+     ```
    - Run `npm install` to install dependencies.
    - Start the backend server using `npm start`. The server runs on `http://localhost:5001`.
 
@@ -85,17 +97,16 @@
 
 - **Therapist Logs In**: The therapist can log in using their credentials, and the data is stored in local storage.
 - **Manage Patients**: Therapists can add, update, and view patients, as well as add notes to patient records.
-- **Data Synchronization**: All patient and note data is synchronized between the backend and the MongoDB database.
+- **Get AI-Based Treatment Recommendations**: The system provides **AI-generated** treatment suggestions based on patient data using **OpenAI API**.
 
 ## Future Enhancements
 
-- **Patient Monitoring Integration**: Connect the patient dashboard to live monitoring systems for real-time updates.
-- **Authentication Enhancements**: Add OAuth or JWT for more secure authentication.
-- **Improved UI/UX**: Expand UI features to enhance accessibility and user interaction.
+- **Live Patient Monitoring**: Integration with wearable devices for real-time health tracking.
+- **Improved Authentication**: Implementing OAuth or JWT for enhanced security.
+- **Enhanced AI Features**: Expanding AI capabilities for more personalized recommendations.
 
 ## Video Demonstration
 
 Watch a video demonstration:
 
 https://github.com/user-attachments/assets/960b7cda-1618-4793-9c18-e3287054f67b
-
