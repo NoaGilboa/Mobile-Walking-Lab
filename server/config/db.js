@@ -38,7 +38,7 @@ async function connectDB() {
                     userId NVARCHAR(255) NOT NULL UNIQUE,
                     name NVARCHAR(255) NOT NULL,
                     age INT,
-                    gender NVARCHAR(50)
+                    condition NVARCHAR(255)
                 );
             END
         `);
