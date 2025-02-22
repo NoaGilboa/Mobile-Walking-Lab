@@ -12,7 +12,6 @@ dist/
 # Operating system files
 .DS_Store
 
-.env
 
 # Coverage directory (if you use testing tools like Jest)
 coverage/
