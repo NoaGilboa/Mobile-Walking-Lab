@@ -55,16 +55,14 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: |
-          unzip release.zip -d app
-          ls -l app  
+        run: unzip release.zip
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D13D3EC070DB4929BE209FCFF5FE819B }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_539491CE5F304722AA64B6AE10951943 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0BFFDD16D6EA4172A0E3B66E434B0A43 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_466D8FDDD5434624B5F2A281E34BA27D }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_AAAFBDC6695042A19C8915DEFA6CE7EA }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FDD7ADE3D8D749B583A0674FF1734207 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -72,6 +70,5 @@ jobs:
         with:
           app-name: 'mobile-walking-lab-server'
           slot-name: 'Production'
-          package: ./app
-
+          package: .
           
