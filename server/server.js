@@ -9,10 +9,14 @@ require('dotenv').config();
 
 
 const app = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
-app.use(cors({ origin: '*' })); 
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://mobile-walking-lab-server-b0fhd9bxfmcafgae.westeurope-01.azurewebsites.net'],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true
+}));
 app.use(bodyParser.json());
 
 console.log("OpenAI API Key:", process.env.OPENAI_API_KEY ? "Loaded" : "Not Found");
@@ -25,7 +29,7 @@ connectDB().then(() => {
 
     // Start the server
     app.listen(PORT,  '0.0.0.0',() => {
-        console.log(`Server is running on http://192.168.1.175:${PORT}`);
+        console.log(`Server is running on ${process.env.PORT ? 'Azure App Service' : `http://localhost:${PORT}`}`);
     });
 }).catch(err => {
     console.error("Server failed to start due to database connection error:", err);
