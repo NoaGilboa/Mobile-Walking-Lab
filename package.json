@@ -1,4 +1,7 @@
 {
+  "scripts": {
+  "start": "node server/server.js"
+},
   "dependencies": {
     "mssql": "^11.0.1",
     "openai": "^4.85.3"
