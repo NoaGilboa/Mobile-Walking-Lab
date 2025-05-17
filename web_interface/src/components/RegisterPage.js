@@ -13,6 +13,18 @@ function RegisterPage() {
 
   const handleRegister = () => {
     // Perform therapist registration
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!therapistId.trim() || !name.trim() || !email.trim() || !password.trim()) {
+      alert("⚠️ יש למלא את כל השדות.");
+      return;
+    }
+  
+    if (!emailRegex.test(email)) {
+      alert("⚠️ כתובת האימייל אינה תקינה.");
+      return;
+    }
+
     registerTherapist(therapistId, email, password, name)
       .then(() => {
         alert('✅ רישום בוצע בהצלחה! כעת ניתן להתחבר.');
