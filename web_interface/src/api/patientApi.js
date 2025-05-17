@@ -2,8 +2,8 @@ import axios from 'axios';
 import { BASE_URL } from './apiConfig';
 
 // Function to add a new patient
-export const addPatient = (userId, name, age, condition) => {
-  return axios.post(`${BASE_URL}/patients`, { userId, name, age, condition });
+export const addPatient = (patientData) => {
+  return axios.post(`${BASE_URL}/patients`, patientData);
 };
 
 // Function to get all patients
@@ -22,8 +22,11 @@ export const getPatientById = (userId) => {
   };
   
   // Function to add a note to a patient by ID
-  export const addNoteToPatient = (userId, note) => {
-    return axios.post(`${BASE_URL}/patients/${userId}/notes`, { note });
+  export const addNoteToPatient = (patientId, therapistId, note) => {
+    return axios.post(`${BASE_URL}/patients/${patientId}/notes`, {
+      therapistId,
+      note
+    });
   };
 
   export const getTreatmentRecommendation = (userId) => {
