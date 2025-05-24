@@ -68,7 +68,6 @@ function AddPatientPage() {
       <input type="text" required placeholder="שם פרטי *" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
       <input type="text" placeholder="שם משפחה" value={lastName} onChange={(e) => setLastName(e.target.value)} />
       <input type="date" max={new Date().toISOString().split("T")[0]} placeholder="תאריך לידה" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
-      <label>מין</label>
       <select value={gender} onChange={(e) => setGender(e.target.value)}>
         <option value="" disabled>בחר מין</option>
         <option value="זכר">זכר</option>
