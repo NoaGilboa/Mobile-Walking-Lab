@@ -67,11 +67,10 @@ function AddPatientPage() {
       <input type="text" required placeholder="תעודת זהות *" value={patientId} onChange={(e) => setPatientId(e.target.value)} />
       <input type="text" required placeholder="שם פרטי *" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
       <input type="text" placeholder="שם משפחה" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-      {/* <input type="date" max={new Date().toISOString().split("T")[0]} placeholder="תאריך לידה" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} /> */}
-       <label style={{ textAlign: 'right', display: 'block', marginTop: '10px' }}>
-        תאריך לידה:
-        <input type="date" max={new Date().toISOString().split("T")[0]} value={birthDate} onChange={(e) => setBirthDate(e.target.value)}/>
-      </label>
+      <div className="form-group">
+        <label htmlFor="birthDate" style={{ display: 'block', marginBottom: '6px', textAlign: 'right' }}>תאריך לידה:</label>
+        <input id="birthDate" type="date" max={new Date().toISOString().split("T")[0]} value={birthDate} onChange={(e) => setBirthDate(e.target.value)} style={{ direction: 'rtl' }} />
+      </div>
       <select value={gender} onChange={(e) => setGender(e.target.value)}>
         <option value="" disabled>בחר מין</option>
         <option value="זכר">זכר</option>
@@ -80,10 +79,9 @@ function AddPatientPage() {
       </select>
       <input type="number" placeholder="משקל (ק״ג)" value={weight} onChange={(e) => setWeight(e.target.value)} />
       <input type="number" placeholder="גובה (ס״מ)" value={height} onChange={(e) => setHeight(e.target.value)} />
-      {/* <input type="tel" placeholder="טלפון" value={phone} onChange={(e) => setPhone(e.target.value)} /> */}
-      <input type="tel" dir="rtl" placeholder="מספר טלפון (לדוג׳: 050-1234567)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <input type="tel" dir="rtl" placeholder="מספר טלפון (לדוג׳: 0501234567)" value={phone} onChange={(e) => setPhone(e.target.value)} />
       <input type="email" placeholder="אימייל" value={email} onChange={(e) => setEmail(e.target.value)} />
-       <input type="email" placeholder="(לדוג׳: example@domain.com) אימייל" value={email} onChange={(e) => setEmail(e.target.value)} />
+       <input type="email" placeholder="אימייל (לדוג׳: example@domain.com)" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input type="text" placeholder="מצב רפואי" value={medicalCondition} onChange={(e) => setMedicalCondition(e.target.value)} />
 
       <button className="add-patient-button" onClick={handleAddPatient}>הוסף מטופל</button>
