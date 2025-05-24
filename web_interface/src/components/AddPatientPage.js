@@ -67,8 +67,8 @@ function AddPatientPage() {
       <input type="text" required placeholder="תעודת זהות *" value={patientId} onChange={(e) => setPatientId(e.target.value)} />
       <input type="text" required placeholder="שם פרטי *" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
       <input type="text" placeholder="שם משפחה" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-      <div className="form-group">
-        <label htmlFor="birthDate" style={{ display: 'block', marginBottom: '6px', textAlign: 'right' }}>תאריך לידה:</label>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', maxWidth: '450px', margin: '0 auto' }}>
+        <label htmlFor="birthDate" style={{ display: 'block', marginBottom: '6px', textAlign: 'right'}}>תאריך לידה:</label>
         <input id="birthDate" type="date" max={new Date().toISOString().split("T")[0]} value={birthDate} onChange={(e) => setBirthDate(e.target.value)} style={{ direction: 'rtl' }} />
       </div>
       <select value={gender} onChange={(e) => setGender(e.target.value)}>
