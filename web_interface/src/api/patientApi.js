@@ -12,8 +12,8 @@ export const getAllPatients = () => {
 };
 
 // Function to get patient details by ID
-export const getPatientById = (userId) => {
-    return axios.get(`${BASE_URL}/patients/${userId}`);
+export const getPatientById = (id) => {
+    return axios.get(`${BASE_URL}/patients/${id}`);
   };
   
   // Function to get notes by patient ID

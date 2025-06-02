@@ -94,18 +94,17 @@ function PatientDetailsPage() {
   return (
     <div className="patient-details-container">
       <h2>פרטי מטופל</h2>
+      <div className="patient-info">
       <p><strong>שם פרטי:</strong> {patient.first_name}</p>
       <p><strong>שם משפחה:</strong> {patient.last_name}</p>
       <p><strong>תעודת זהות:</strong> {patient.patient_id}</p>
-      <p><strong>תאריך לידה:</strong> {patient.birth_date}</p>
+      <p><strong>תאריך לידה:</strong> {new Date(patient.birth_date).toLocaleDateString('he-IL')}</p>
       <p><strong>מין:</strong> {patient.gender}</p>
       <p><strong>משקל:</strong> {patient.weight} ק״ג</p>
       <p><strong>גובה:</strong> {patient.height} ס״מ</p>
       <p><strong>טלפון:</strong> {patient.phone}</p>
       <p><strong>אימייל:</strong> {patient.email}</p>
       <p><strong>מצב רפואי:</strong> {patient.medical_condition}</p>
-      <p><strong>מצב ניידות:</strong> {patient.mobility_status}</p>
-      <h3>הערות קודמות</h3>
       <h3>הערות קודמות</h3>
       <ul className="note-history">
         {noteHistory.map((item, index) => (
@@ -117,6 +116,7 @@ function PatientDetailsPage() {
           </li>
         ))}
       </ul>
+  </div>
 
       <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <button className="save-notes-button" onClick={handleSaveNotes}>שמור הערות</button>
