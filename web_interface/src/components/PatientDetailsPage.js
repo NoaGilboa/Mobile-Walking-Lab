@@ -1,8 +1,12 @@
 // PatientDetailsPage.js
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPatientById, getNotesByPatientId, addNoteToPatient } from '../api/patientApi';
+import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
 import { getTreatmentRecommendation } from '../api/patientApi';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
 
 import '../index.css';
 
@@ -13,6 +17,14 @@ function PatientDetailsPage() {
   const [notes, setNotes] = useState('');
   const [noteHistory, setNoteHistory] = useState([]);
   const [treatmentRecommendation, setTreatmentRecommendation] = useState('');
+  const [manualDistance, setManualDistance] = useState('');
+  const [isTiming, setIsTiming] = useState(false);
+  const [startTime, setStartTime] = useState(null);
+  const [speedHistory, setSpeedHistory] = useState([]);
+const [showManualSpeedSection, setShowManualSpeedSection] = useState(false);
+const [lastSpeed, setLastSpeed] = useState(null);
+const [elapsedTime, setElapsedTime] = useState(0);
+
 
 
   useEffect(() => {
@@ -33,6 +45,10 @@ function PatientDetailsPage() {
       .catch(error => {
         console.error("Error fetching notes history", error);
       });
+      getSpeedHistory(userId)
+      .then(res => setSpeedHistory(res.data))
+      .catch(err => console.error("שגיאה בשליפת היסטוריית מהירויות", err));
+
   }, [userId]);
 
   const handleSaveNotes = () => {
@@ -89,6 +105,75 @@ function PatientDetailsPage() {
       });
   };
 
+  useEffect(() => {
+  let timer;
+
+  if (isTiming) {
+    timer = setInterval(() => {
+      setElapsedTime(prev => prev + 1);
+    }, 1000);
+  } else {
+    clearInterval(timer);
+  }
+
+  return () => clearInterval(timer);
+}, [isTiming]);
+
+  const handleStartStopTimer = () => {
+  if (isTiming) {
+    const endTime = new Date();
+    const durationSeconds = (endTime - startTime) / 1000;
+    const distance = parseFloat(manualDistance);
+
+    if (!distance || durationSeconds === 0) {
+      alert("יש להזין מרחק חוקי לפני חישוב.");
+      return;
+    }
+
+    const speed = distance / durationSeconds;
+    const speedKmH = speed * 3.6;
+    const speedResult = parseFloat(speedKmH.toFixed(2));
+    const newRecord = {
+      speed: speedResult,
+      time: new Date().toLocaleTimeString('he-IL'),
+    };
+
+    setSpeedHistory(prev => [...prev, newRecord]);
+    setLastSpeed(speedResult);
+    setIsTiming(false);
+    setManualDistance('');
+    setStartTime(null);
+    setElapsedTime(0);
+      
+    saveSpeedMeasurement(userId, speedResult)
+    .catch(error => console.error("שגיאה בשמירת מהירות", error));
+
+  } else {
+    setStartTime(new Date());
+    setIsTiming(true);
+    setLastSpeed(null);
+    setElapsedTime(0);
+  }
+};
+
+const formatTime = (seconds) => {
+  const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const sec = (seconds % 60).toString().padStart(2, '0');
+  return `${min}:${sec}`;
+};
+
+const speedChartData = {
+  labels: speedHistory.map((_, idx) => `מדידה ${idx + 1}`),
+  datasets: [
+    {
+      label: 'מהירות (קמ״ש)',
+      data: speedHistory.map(item => item.speed),
+      backgroundColor: 'rgba(75, 192, 192, 0.6)',
+    },
+  ],
+};
+
+
   if (!patient) return <div>טוען נתונים...</div>;
 
   return (
@@ -133,6 +218,43 @@ function PatientDetailsPage() {
       ) : (
         <p>אין עדיין המלצת טיפול.</p>
       )}
+      <button className="recommendation-button" onClick={() => setShowManualSpeedSection(prev => !prev)}>
+  {showManualSpeedSection ? 'סגור מדידת מהירות ידנית' : 'מדידת מהירות ידנית'}
+</button>
+{showManualSpeedSection && (
+  <div className="manual-speed-section">
+    <h3>מדידת מהירות ידנית</h3>
+    <input
+      type="number"
+      placeholder="מרחק במטרים"
+      value={manualDistance}
+      onChange={(e) => setManualDistance(e.target.value)}
+    />
+    <button className="timer-button" onClick={handleStartStopTimer}>
+      {isTiming ? 'עצור שעון וחשב מהירות' : 'התחל מדידת זמן'}
+    </button>
+    {isTiming && (
+  <p className="timer-display">
+    🕒 זמן נמדד: <strong>{formatTime(elapsedTime)}</strong>
+  </p>
+)}
+
+
+    {lastSpeed && (
+      <p className="speed-result">
+        ✅ מהירות מחושבת: <strong>{lastSpeed} קמ״ש</strong>
+      </p>
+    )}
+
+    {speedHistory.length > 0 && (
+      <>
+        <h4>היסטוריית מהירויות</h4>
+        <Bar data={speedChartData} />
+      </>
+    )}
+  </div>
+)}
+
     </div>
   );
 }

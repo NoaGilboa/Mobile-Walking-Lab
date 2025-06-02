@@ -149,3 +149,42 @@ li:hover {
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
+.manual-speed-section {
+  margin-top: 30px;
+  padding: 20px;
+  border-top: 2px dashed #ccc;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.manual-speed-section input {
+  padding: 10px;
+  margin: 10px 0;
+  width: 220px;
+}
+
+.manual-speed-section .timer-button {
+  padding: 10px 16px;
+  background-color: #006c91;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.manual-speed-section .timer-button:hover {
+  background-color: #004f6e;
+}
+
+.speed-result {
+  margin-top: 15px;
+  font-size: 1.1em;
+  color: #1a4;
+}
+.timer-display {
+  font-size: 1.1em;
+  margin-top: 10px;
+  color: #0077cc;
+}
