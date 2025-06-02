@@ -30,6 +30,6 @@ export const getPatientById = (id) => {
   };
 
   export const getTreatmentRecommendation = (id) => {
-    return axios.get(`${BASE_URL}/patients/${id}/get-treatment-recommendation`);
+    return axios.get(`${BASE_URL}/patients/${id}/treatment-recommendation`);
   };
   
