@@ -29,7 +29,7 @@ export const getPatientById = (id) => {
     });
   };
 
-  export const getTreatmentRecommendation = (userId) => {
-    return axios.get(`${BASE_URL}/patients/${userId}/get-treatment-recommendation`);
+  export const getTreatmentRecommendation = (id) => {
+    return axios.get(`${BASE_URL}/patients/${id}/get-treatment-recommendation`);
   };
   
