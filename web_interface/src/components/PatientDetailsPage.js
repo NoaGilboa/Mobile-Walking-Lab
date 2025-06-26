@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
+import { startESP32Session, stopESP32Session } from '../api/espApi';
 import { Bar, Line } from 'react-chartjs-2';
-import {Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend,} from 'chart.js';
-ChartJS.register( BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend );
+import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
+ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 import '../index.css';
 
@@ -213,6 +214,27 @@ function PatientDetailsPage() {
     }
   };
 
+  const handleStartEspMeasurement = async () => {
+    try {
+      const response = await startESP32Session();
+      alert("✅ מדידה התחילה: " + response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("❌ שגיאה בהתחלת מדידה בבקר", error);
+      alert("❌ לא ניתן להתחיל מדידה כרגע. ודא שהבקר מחובר לרשת.");
+    }
+  };
+
+  const handleStopEspMeasurement = async () => {
+    try {
+      const response = await stopESP32Session();
+      alert("✅ מדידה הסתיימה ונשלחה לשרת");
+      console.log(response.data);
+    } catch (error) {
+      console.error("❌ שגיאה בעצירת מדידה בבקר", error);
+      alert("❌ לא ניתן לעצור מדידה כרגע. ודא שהבקר מחובר לרשת.");
+    }
+  };
 
   if (!patient) return <div>טוען נתונים...</div>;
 
@@ -257,6 +279,15 @@ function PatientDetailsPage() {
       ) : (
         <p>אין עדיין המלצת טיפול.</p>
       )}
+      <div className="esp-measurement-controls">
+        <button className="recommendation-button" onClick={handleStartEspMeasurement}>
+          ▶️ התחלת מדידה בבקר
+        </button>
+        <button className="recommendation-button" onClick={handleStopEspMeasurement}>
+          ⏹️ סיום מדידה בבקר
+        </button>
+      </div>
+
       <button className="recommendation-button" onClick={() => setShowManualSpeedSection(prev => !prev)}>
         {showManualSpeedSection ? 'סגור מדידת מהירות ידנית' : 'מדידת מהירות ידנית'}
       </button>
