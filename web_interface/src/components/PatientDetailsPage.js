@@ -1,5 +1,5 @@
 // PatientDetailsPage.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
 import { setESP32Command } from '../api/deviceApi';
@@ -8,7 +8,9 @@ import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale,
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import '.././fonts/Alef-Regular-normal.js';
 import '../index.css';
+
 
 function PatientDetailsPage() {
   const { userId } = useParams();
@@ -26,7 +28,10 @@ function PatientDetailsPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [chartType, setChartType] = useState('bar');
   const [espMeasurementRunning, setEspMeasurementRunning] = useState(false);
-
+  const manualChartRef = useRef(null);
+  const espChartRef = useRef(null);
+  const footLiftChartRef = useRef(null);
+  const handPressureChartRef = useRef(null);
 
   useEffect(() => {
     // בקשה לנתונים של המטופל לפי ה-ID
@@ -259,16 +264,41 @@ function PatientDetailsPage() {
   };
 
   const handleExportPdf = async () => {
-    const element = document.querySelector('.patient-details-container');
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL('image/png');
-
     const pdf = new jsPDF("p", "mm", "a4");
+    pdf.setFont('Alef-Regular');
     const width = pdf.internal.pageSize.getWidth();
+    const chartWidth = width - 20;
+    const chartHeight = chartWidth * 0.6;
+
+    const element = document.querySelector('.patient-details-container');
+    const canvas = await html2canvas(element, {
+      ignoreElements: (el) => el.tagName === 'CANVAS',
+    });
+    const imgData = canvas.toDataURL('image/png');
     const height = (canvas.height * width) / canvas.width;
+
     pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+
+    const addChart = (ref, title) => {
+      if (ref?.current) {
+        const img = ref.current.toBase64Image();
+        pdf.addPage();
+        pdf.setFontSize(16);
+        pdf.setFont('Alef-Regular');
+        pdf.text(reverseText(title), pdf.internal.pageSize.getWidth() - 10, 20, { align: 'right' });
+        pdf.addImage(img, 'PNG', 10, 30, chartWidth, chartHeight);
+      }
+    };
+
+    addChart(manualChartRef, 'גרף מהירויות ידניות');
+    addChart(espChartRef, 'גרף מהירויות סיבוביות מהבקר');
+    addChart(footLiftChartRef, 'גרף ניתוקים של רגליים');
+    addChart(handPressureChartRef, 'גרף לחצים בידיים');
+
     pdf.save(`patient_${patient?.patient_id}_details.pdf`);
   };
+  const reverseText = (text) => text.split('').reverse().join('');
+
 
   if (!patient) return <div>טוען נתונים...</div>;
 
@@ -304,7 +334,7 @@ function PatientDetailsPage() {
       </div>
 
       <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <div/>
+      <div />
       <button className="recommendation-button" onClick={handleSaveNotes}>שמור הערות</button>
       {/* <button className="edit-button" onClick={() => navigate(`/patients/${userId}/edit`)}>✏️ ערוך</button>
       <button className="delete-button" onClick={handleDeletePatient}>🗑️ מחק</button> */}
@@ -378,9 +408,9 @@ function PatientDetailsPage() {
 
           </div>
           {chartType === 'bar' ? (
-            <Bar data={speedChartData} options={options} />
+            <Bar ref={manualChartRef} data={speedChartData} options={options} />
           ) : (
-            <Line data={speedChartData} options={options} />
+            <Line ref={manualChartRef} data={speedChartData} options={options} />
           )}
         </>
       )}
@@ -394,9 +424,9 @@ function PatientDetailsPage() {
             </button>
           </div>
           {chartType === 'bar' ? (
-            <Bar data={speedChartData} options={options} />
+            <Bar ref={espChartRef} data={speedChartData} options={options} />
           ) : (
-            <Line data={speedChartData} options={options} />
+            <Line ref={espChartRef} data={speedChartData} options={options} />
           )}
         </>
       )}
@@ -418,9 +448,9 @@ function PatientDetailsPage() {
 
           </div>
           {chartType === 'bar' ? (
-            <Bar data={speedChartData} options={options} />
+            <Bar ref={footLiftChartRef} data={speedChartData} options={options} />
           ) : (
-            <Line data={speedChartData} options={options} />
+            <Line ref={footLiftChartRef} data={speedChartData} options={options} />
           )}
         </>
       )
@@ -435,9 +465,9 @@ function PatientDetailsPage() {
               </button>
             </div>
             {chartType === 'bar' ? (
-              <Bar data={speedChartData} options={options} />
+              <Bar ref={handPressureChartRef} data={speedChartData} options={options} />
             ) : (
-              <Line data={speedChartData} options={options} />
+              <Line ref={handPressureChartRef} data={speedChartData} options={options} />
             )}
           </>
         )
