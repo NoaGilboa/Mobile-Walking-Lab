@@ -246,6 +246,16 @@ function PatientDetailsPage() {
     }
   };
 
+  const calculateAge = (birthDate) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
   if (!patient) return <div>טוען נתונים...</div>;
 
@@ -260,6 +270,7 @@ function PatientDetailsPage() {
         <p><strong>שם משפחה:</strong> {patient.last_name}</p>
         <p><strong>תעודת זהות:</strong> {patient.patient_id}</p>
         <p><strong>תאריך לידה:</strong> {new Date(patient.birth_date).toLocaleDateString('he-IL')}</p>
+        <p><strong>גיל:</strong> {calculateAge(patient.birth_date)}</p>
         <p><strong>מין:</strong> {patient.gender}</p>
         <p><strong>משקל:</strong> {patient.weight} ק״ג</p>
         <p><strong>גובה:</strong> {patient.height} ס״מ</p>
