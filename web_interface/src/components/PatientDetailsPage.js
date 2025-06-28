@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { startESP32Session, stopESP32Session, setESP32Command } from '../api/deviceApi';
+import { setESP32Command } from '../api/deviceApi';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -24,7 +24,7 @@ function PatientDetailsPage() {
   const [lastSpeed, setLastSpeed] = useState(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [chartType, setChartType] = useState('bar');
-
+  const [espMeasurementRunning, setEspMeasurementRunning] = useState(false);
 
 
   useEffect(() => {
@@ -216,33 +216,45 @@ function PatientDetailsPage() {
 
   const handleStartEspMeasurement = async () => {
     try {
-      // const response = await startESP32Session();
+      await handleStopEspMeasurement(true);
       const response = await setESP32Command('start');
-      alert("✅ מדידה התחילה: " + response.data);
+      setEspMeasurementRunning(true);
+      setElapsedTime(0);
+      setIsTiming(true);
+      setStartTime(new Date());
       console.log(response.data);
+      alert("✅ מדידה התחילה: " + response.data);
     } catch (error) {
       console.error("❌ שגיאה בהתחלת מדידה בבקר", error);
       alert("❌ לא ניתן להתחיל מדידה כרגע. ודא שהבקר מחובר לרשת.");
     }
   };
 
-  const handleStopEspMeasurement = async () => {
+  const handleStopEspMeasurement = async (silent = false) => {
     try {
-      // const response = await stopESP32Session();
       const response = await setESP32Command('stop');
-      alert("✅ מדידה הסתיימה ונשלחה לשרת");
+      setEspMeasurementRunning(false);
+      setIsTiming(false);
+      setStartTime(null);
+      if (!silent) {
+        alert("✅ מדידה הסתיימה ונשלחה לשרת");
+      }
       console.log(response.data);
     } catch (error) {
       console.error("❌ שגיאה בעצירת מדידה בבקר", error);
-      alert("❌ לא ניתן לעצור מדידה כרגע. ודא שהבקר מחובר לרשת.");
+      if (!silent) alert("❌ לא ניתן לעצור מדידה כרגע. ודא שהבקר מחובר לרשת.");
     }
   };
+
 
   if (!patient) return <div>טוען נתונים...</div>;
 
   return (
     <div className="patient-details-container">
-      <h2>פרטי מטופל</h2>
+      <button className="close-button" onClick={() => navigate('/patients')} title="חזור לרשימה">
+        <img src="/images/arrow_back.svg" alt="חזור" className="back-icon" />
+      </button>
+      <h2 className="page-title">פרטי מטופל</h2>
       <div className="patient-info">
         <p><strong>שם פרטי:</strong> {patient.first_name}</p>
         <p><strong>שם משפחה:</strong> {patient.last_name}</p>
@@ -269,8 +281,8 @@ function PatientDetailsPage() {
 
       <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <button className="save-notes-button" onClick={handleSaveNotes}>שמור הערות</button>
-      <button className="edit-button" onClick={() => navigate(`/patients/${userId}/edit`)}>✏️ ערוך</button>
-      <button className="delete-button" onClick={handleDeletePatient}>🗑️ מחק</button>
+      {/* <button className="edit-button" onClick={() => navigate(`/patients/${userId}/edit`)}>✏️ ערוך</button>
+      <button className="delete-button" onClick={handleDeletePatient}>🗑️ מחק</button> */}
       <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button>
       <button className="recommendation-button" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
       {treatmentRecommendation ? (
@@ -282,15 +294,20 @@ function PatientDetailsPage() {
         <p>אין עדיין המלצת טיפול.</p>
       )}
       <div className="esp-measurement-controls">
-        <button className="recommendation-button" onClick={handleStartEspMeasurement}>
+        <button className="recommendation-button" onClick={handleStartEspMeasurement} disabled={espMeasurementRunning}>
           ▶️ התחלת מדידה בבקר
         </button>
-        <button className="recommendation-button" onClick={handleStopEspMeasurement}>
+        <button className="recommendation-button" onClick={() => handleStopEspMeasurement(false)} disabled={!espMeasurementRunning}>
           ⏹️ סיום מדידה בבקר
         </button>
+        {((isTiming || elapsedTime > 0) && espMeasurementRunning) && (
+          <p className="timer-display">
+            🕒 זמן מדידה: <strong>{formatTime(elapsedTime)}</strong>
+          </p>
+        )}
       </div>
 
-      <button className="recommendation-button" onClick={() => setShowManualSpeedSection(prev => !prev)}>
+      <button className="recommendation-button" onClick={() => setShowManualSpeedSection(prev => !prev)} disabled={espMeasurementRunning}>
         {showManualSpeedSection ? 'סגור מדידת מהירות ידנית' : 'מדידת מהירות ידנית'}
       </button>
       {showManualSpeedSection && (

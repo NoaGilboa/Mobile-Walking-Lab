@@ -70,6 +70,7 @@ li:hover {
 .patient-list-container,
 .add-patient-container,
 .patient-details-container {
+  position: relative; 
   text-align: center;
   background-color: #ffffff;
   padding: 40px 30px;
@@ -188,3 +189,61 @@ li:hover {
   margin-top: 10px;
   color: #0077cc;
 }
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  padding: 3;
+  cursor: pointer;
+  display: flex;
+  position: absolute;
+  left: 20px;
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.page-title {
+  text-align: center;
+}
+
+.close-button:hover {
+  color: #2c7a7b;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  direction: ltr;
+}
+
+.welcome-message {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.logout-button {
+  background-color: #2c7a7b;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.logout-button:hover {
+  background-color: #256d6b;
+}
+
+

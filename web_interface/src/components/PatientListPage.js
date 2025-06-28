@@ -71,8 +71,8 @@ function PatientListPage() {
   return (
     <div className="patient-list-container">
       <div className="header-container">
+         <button className="logout-button" onClick={handleLogout}>התנתק</button>
         <div className="welcome-message">היי, {therapistName}</div>
-        <button className="logout-button" onClick={handleLogout}>התנתק</button>
       </div>
       <h2>רשימת מטופלים</h2>
 
@@ -81,7 +81,7 @@ function PatientListPage() {
         <input type="text" placeholder="חפש לפי תעודת זהות" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
       </div>
 
-      <button className="add-patient-button" onClick={() => navigate('/patients/add')}>➕ הוסף מטופל חדש</button>
+      <button className="add-patient-button" onClick={() => navigate('/patients/add')}>הוסף מטופל חדש</button>
       <table className="patient-table">
         <thead>
           <tr>
