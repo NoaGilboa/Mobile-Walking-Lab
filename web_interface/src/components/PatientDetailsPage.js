@@ -304,7 +304,7 @@ function PatientDetailsPage() {
       </div>
 
       <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
-      <button className="save-notes-button" onClick={handleSaveNotes}>שמור הערות</button>
+      <button className="recommendation-button" onClick={handleSaveNotes}>שמור הערות</button>
       {/* <button className="edit-button" onClick={() => navigate(`/patients/${userId}/edit`)}>✏️ ערוך</button>
       <button className="delete-button" onClick={handleDeletePatient}>🗑️ מחק</button> */}
       {/* <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button> */}
