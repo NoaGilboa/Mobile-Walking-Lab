@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { startESP32Session, stopESP32Session } from '../api/deviceApi';
+import { startESP32Session, stopESP32Session, setESP32Command } from '../api/deviceApi';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -216,7 +216,8 @@ function PatientDetailsPage() {
 
   const handleStartEspMeasurement = async () => {
     try {
-      const response = await startESP32Session();
+      // const response = await startESP32Session();
+      const response = await setESP32Command('start');
       alert("✅ מדידה התחילה: " + response.data);
       console.log(response.data);
     } catch (error) {
@@ -227,7 +228,8 @@ function PatientDetailsPage() {
 
   const handleStopEspMeasurement = async () => {
     try {
-      const response = await stopESP32Session();
+      // const response = await stopESP32Session();
+      const response = await setESP32Command('stop');
       alert("✅ מדידה הסתיימה ונשלחה לשרת");
       console.log(response.data);
     } catch (error) {
