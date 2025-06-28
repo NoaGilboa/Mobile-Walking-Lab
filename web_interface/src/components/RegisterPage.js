@@ -59,6 +59,9 @@ function RegisterPage() {
 
   return (
     <div className="register-container">
+      <button className="close-button" onClick={() => navigate('/')} title="חזור">
+        <img src="/images/arrow_back.svg" alt="חזור" className="back-icon" />
+      </button>
       <h2>הרשמה</h2>
       <input type="text" placeholder="תעודת זהות" value={therapist_id} onChange={(e) => setTherapistId(e.target.value)} />
       <input type="name" placeholder="שם מלא" value={name} onChange={(e) => setName(e.target.value)} />

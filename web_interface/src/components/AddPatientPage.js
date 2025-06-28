@@ -63,6 +63,9 @@ function AddPatientPage() {
 
   return (
     <div className="add-patient-container">
+      <button className="close-button" onClick={() => navigate('/patients')} title="חזור">
+        <img src="/images/arrow_back.svg" alt="חזור" className="back-icon" />
+      </button>
       <h2>הוסף מטופל חדש</h2>
       <input type="text" required placeholder="תעודת זהות *" value={patientId} onChange={(e) => setPatientId(e.target.value)} />
       <input type="text" required placeholder="שם פרטי *" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
@@ -80,12 +83,11 @@ function AddPatientPage() {
       <input type="number" placeholder="משקל (ק״ג)" value={weight} onChange={(e) => setWeight(e.target.value)} />
       <input type="number" placeholder="גובה (ס״מ)" value={height} onChange={(e) => setHeight(e.target.value)} />
       <input type="tel" dir="rtl" placeholder="מספר טלפון (לדוג׳: 0501234567)" value={phone} onChange={(e) => setPhone(e.target.value)} />
-      <input type="email" placeholder="אימייל" value={email} onChange={(e) => setEmail(e.target.value)} />
        <input type="email" placeholder="אימייל (לדוג׳: example@domain.com)" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input type="text" placeholder="מצב רפואי" value={medicalCondition} onChange={(e) => setMedicalCondition(e.target.value)} />
 
       <button className="add-patient-button" onClick={handleAddPatient}>הוסף מטופל</button>
-      <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button>
+      {/* <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button> */}
 
     </div>
   );

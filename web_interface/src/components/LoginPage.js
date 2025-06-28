@@ -52,6 +52,9 @@ function LoginPage() {
 
   return (
     <div className="login-container">
+      <button className="close-button" onClick={() => navigate('/')} title="חזור">
+        <img src="/images/arrow_back.svg" alt="חזור" className="back-icon" />
+      </button>
       <h2>התחברות</h2>
       <input type="email" placeholder="אימייל" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input type="password" placeholder="סיסמה" value={password} onChange={(e) => setPassword(e.target.value)} />

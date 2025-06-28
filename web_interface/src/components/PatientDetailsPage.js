@@ -283,7 +283,7 @@ function PatientDetailsPage() {
       <button className="save-notes-button" onClick={handleSaveNotes}>שמור הערות</button>
       {/* <button className="edit-button" onClick={() => navigate(`/patients/${userId}/edit`)}>✏️ ערוך</button>
       <button className="delete-button" onClick={handleDeletePatient}>🗑️ מחק</button> */}
-      <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button>
+      {/* <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button> */}
       <button className="recommendation-button" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
       {treatmentRecommendation ? (
         <div className="recommendation-box">
