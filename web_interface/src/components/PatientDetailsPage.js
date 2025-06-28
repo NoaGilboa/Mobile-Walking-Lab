@@ -6,7 +6,8 @@ import { setESP32Command } from '../api/deviceApi';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
-
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import '../index.css';
 
 function PatientDetailsPage() {
@@ -257,6 +258,18 @@ function PatientDetailsPage() {
     return age;
   };
 
+  const handleExportPdf = async () => {
+    const element = document.querySelector('.patient-details-container');
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+    pdf.save(`patient_${patient?.patient_id}_details.pdf`);
+  };
+
   if (!patient) return <div>טוען נתונים...</div>;
 
   return (
@@ -304,6 +317,8 @@ function PatientDetailsPage() {
       ) : (
         <p>אין עדיין המלצת טיפול.</p>
       )}
+      <button className="recommendation-button" onClick={handleExportPdf}>📄 ייצא ל-PDF</button>
+
       <div className="esp-measurement-controls">
         <button className="recommendation-button" onClick={handleStartEspMeasurement} disabled={espMeasurementRunning}>
           ▶️ התחלת מדידה בבקר
@@ -338,32 +353,95 @@ function PatientDetailsPage() {
               🕒 זמן נמדד: <strong>{formatTime(elapsedTime)}</strong>
             </p>
           )}
+        </div>
 
+      )}
+      {lastSpeed && (
+        <p className="speed-result">
+          ✅ מהירות מחושבת: <strong>{lastSpeed} קמ״ש</strong>
+        </p>
+      )}
 
-          {lastSpeed && (
-            <p className="speed-result">
-              ✅ מהירות מחושבת: <strong>{lastSpeed} קמ״ש</strong>
-            </p>
+      {speedHistory.length > 0 && (
+        <>
+          <div className="header-chart-type-container">
+            <h4 className="chart-type-title">היסטוריית מהירויות ידניות</h4>
+            <div className="chart-toggle-container">
+              <span className="chart-label">גרף :</span>
+              <label className="switch">
+                <input type="checkbox" checked={chartType === 'line'} onChange={() => setChartType(prev => prev === 'bar' ? 'line' : 'bar')} />
+                <span className="slider round"></span>
+              </label>
+              <span className="chart-label">{chartType === 'bar' ? 'עמודות 📊' : 'עקומה 📈'}</span>
+            </div>
+
+          </div>
+          {chartType === 'bar' ? (
+            <Bar data={speedChartData} options={options} />
+          ) : (
+            <Line data={speedChartData} options={options} />
           )}
+        </>
+      )}
 
-          {speedHistory.length > 0 && (
-            <>
-              <h4>היסטוריית מהירויות</h4>
+      {speedHistory.length > 0 && (
+        <>
+          <div className="header-chart-type-container">
+            <h4 className="chart-type-title">היסטוריית מהירויות סיבוביות מהבקר</h4>
+            <button className="chart-type-button" onClick={() => setChartType(prev => prev === 'bar' ? 'line' : 'bar')}>
+              שנה לגרף {chartType === 'bar' ? 'עקומה 📈' : 'עמודות 📊'}
+            </button>
+          </div>
+          {chartType === 'bar' ? (
+            <Bar data={speedChartData} options={options} />
+          ) : (
+            <Line data={speedChartData} options={options} />
+          )}
+        </>
+      )}
+      {speedHistory.length > 0 && (
+        <>
+          <div className="header-chart-type-container">
+            <h4 className="chart-type-title">היסטוריית מהירויות סיבוביות מהבקר</h4>
+            <div className="chart-type-dropdown-row">
+              <label htmlFor="chartSelect">בחר סוג גרף : </label>
+              <select
+                id="chartSelect"
+                value={chartType}
+                onChange={(e) => setChartType(e.target.value)}
+              >
+                <option value="bar">📊 גרף עמודות</option>
+                <option value="line">📈 גרף עקומה</option>
+              </select>
+            </div>
+
+          </div>
+          {chartType === 'bar' ? (
+            <Bar data={speedChartData} options={options} />
+          ) : (
+            <Line data={speedChartData} options={options} />
+          )}
+        </>
+      )
+      }
+      {
+        speedHistory.length > 0 && (
+          <>
+            <div className="header-chart-type-container">
+              <h4 className="chart-type-title">היסטוריית מספר ניתוקים של הרגל מהרצפה</h4>
               <button className="timer-button" onClick={() => setChartType(prev => prev === 'bar' ? 'line' : 'bar')}>
                 שנה לגרף {chartType === 'bar' ? 'עקומה 📈' : 'עמודות 📊'}
               </button>
-
-              {chartType === 'bar' ? (
-                <Bar data={speedChartData} options={options} />
-              ) : (
-                <Line data={speedChartData} options={options} />
-              )}
-            </>
-          )}
-        </div>
-      )}
-
-    </div>
+            </div>
+            {chartType === 'bar' ? (
+              <Bar data={speedChartData} options={options} />
+            ) : (
+              <Line data={speedChartData} options={options} />
+            )}
+          </>
+        )
+      }
+    </div >
   );
 }
 

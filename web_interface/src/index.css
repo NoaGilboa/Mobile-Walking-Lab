@@ -247,3 +247,147 @@ button:disabled {
 }
 
 
+/* .header-chart-type-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  direction: rtl;
+} */
+
+.header-chart-type-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-top: 25px;
+  direction: rtl;
+}
+
+.chart-type-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.chart-type-button {
+  background-color: #226b5f;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.chart-type-button:hover {
+  background-color: #1a544b;
+}
+
+.chart-type-button.bar::before {
+  content: "📊";
+}
+
+.chart-type-button.line::before {
+  content: "📈";
+}
+
+.chart-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  direction: rtl;
+  margin-bottom: 20px;
+}
+
+.chart-label {
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  right: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+/* Checked */
+.switch input:checked + .slider {
+  background-color: #26a69a;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(-22px); /* RTL */
+}
+.chart-type-dropdown-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  direction: rtl;
+}
+
+.chart-type-dropdown-row label {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+.chart-type-dropdown-row select {
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #fff;
+  color: #000;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill='black' height='24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 10px center;
+  padding-left: 34px; 
+}
+
+.chart-type-dropdown-row select:hover,
+.chart-type-dropdown-row select:focus {
+  border-color: #26a69a;
+  outline: none;
+}
