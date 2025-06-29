@@ -30,7 +30,7 @@ export const getPatientById = (id) => {
   };
 
   export const getTreatmentRecommendation = (id) => {
-    return axios.get(`${BASE_URL}/patients/${id}/treatment-recommendation`);
+    return axios.post(`${BASE_URL}/patients/${id}/treatment-recommendation`);
   };
 
   export const saveSpeedMeasurement = (patientId, speedKmh) => {
