@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { setESP32Command } from '../api/deviceApi';
+import { setESP32Command, getDeviceMeasurements, saveDeviceMeasurements } from '../api/deviceApi';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -33,6 +33,12 @@ function PatientDetailsPage() {
   const espChartRef = useRef(null);
   const footLiftChartRef = useRef(null);
   const handPressureChartRef = useRef(null);
+  const [speedData, setSpeedData] = useState([]);
+  const [distanceData, setDistanceData] = useState([]);
+  const [pressureRight, setPressureRight] = useState([]);
+  const [pressureLeft, setPressureLeft] = useState([]);
+  const [footLiftR, setFootLiftR] = useState([]);
+  const [footLiftL, setFootLiftL] = useState([]);
 
   useEffect(() => {
     // בקשה לנתונים של המטופל לפי ה-ID
@@ -102,18 +108,18 @@ function PatientDetailsPage() {
 
 
 
-const handleGetRecommendation = () => {
-  setLoadingRecommendation(true);
-  getTreatmentRecommendation(userId)
-    .then(response => {
-      setTreatmentRecommendation(response.data.recommendation);
-    })
-    .catch(error => {
-      console.error("Error fetching treatment recommendation", error);
-      alert("❌ לא ניתן לקבל המלצה לטיפול כעת. אנא נסה שוב מאוחר יותר.");
-    })
-    .finally(() => setLoadingRecommendation(false));
-};
+  const handleGetRecommendation = () => {
+    setLoadingRecommendation(true);
+    getTreatmentRecommendation(userId)
+      .then(response => {
+        setTreatmentRecommendation(response.data.recommendation);
+      })
+      .catch(error => {
+        console.error("Error fetching treatment recommendation", error);
+        alert("❌ לא ניתן לקבל המלצה לטיפול כעת. אנא נסה שוב מאוחר יותר.");
+      })
+      .finally(() => setLoadingRecommendation(false));
+  };
 
 
   useEffect(() => {
@@ -228,7 +234,7 @@ const handleGetRecommendation = () => {
   const handleStartEspMeasurement = async () => {
     try {
       await handleStopEspMeasurement(true);
-      const response = await setESP32Command('start');
+      const response = await setESP32Command('start', patient.id);
       setEspMeasurementRunning(true);
       setElapsedTime(0);
       setIsTiming(true);
@@ -243,10 +249,26 @@ const handleGetRecommendation = () => {
 
   const handleStopEspMeasurement = async (silent = false) => {
     try {
-      const response = await setESP32Command('stop');
+      const response = await setESP32Command('stop', patient.id);
       setEspMeasurementRunning(false);
       setIsTiming(false);
       setStartTime(null);
+
+      setTimeout(() => {
+        getDeviceMeasurements(userId)
+          .then(res => {
+            setSpeedData(res.data.speed);
+            setDistanceData(res.data.distance);
+            setPressureRight(res.data.handPressureR);
+            setPressureLeft(res.data.handPressureL);
+            setFootLiftR(res.data.footLiftR);
+            setFootLiftL(res.data.footLiftL);
+          })
+          .catch(err => {
+            console.error("❌ שגיאה בשליפת מדידות לאחר סיום", err);
+          });
+      }, 3000);
+
       if (!silent) {
         alert("✅ מדידה הסתיימה ונשלחה לשרת");
       }
@@ -304,6 +326,20 @@ const handleGetRecommendation = () => {
   };
   const reverseText = (text) => text.split('').reverse().join('');
 
+  useEffect(() => {
+    getDeviceMeasurements(userId)
+      .then(res => {
+        setSpeedData(res.data.speed);
+        setDistanceData(res.data.distance);
+        setPressureRight(res.data.handPressureR);
+        setPressureLeft(res.data.handPressureL);
+        setFootLiftR(res.data.footLiftR);
+        setFootLiftL(res.data.footLiftL);
+      })
+      .catch(err => {
+        console.error("❌ שגיאה בשליפת מדידות מהבקר", err);
+      });
+  }, [userId]);
 
   if (!patient) return <div>טוען נתונים...</div>;
 
