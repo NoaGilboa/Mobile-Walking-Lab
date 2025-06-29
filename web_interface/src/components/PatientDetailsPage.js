@@ -254,22 +254,21 @@ function PatientDetailsPage() {
       setIsTiming(false);
       setStartTime(null);
 
-      setTimeout(() => {
-        getDeviceMeasurements(userId)
-          .then(res => {
-            setSpeedData(res.data.speed);
-            setDistanceData(res.data.distance);
-            setPressureRight(res.data.handPressureR);
-            setPressureLeft(res.data.handPressureL);
-            setFootLiftR(res.data.footLiftR);
-            setFootLiftL(res.data.footLiftL);
-          })
-          .catch(err => {
-            console.error("❌ שגיאה בשליפת מדידות לאחר סיום", err);
-          });
-      }, 3000);
-
       if (!silent) {
+        setTimeout(() => {
+          getDeviceMeasurements(userId)
+            .then(res => {
+              setSpeedData(res.data.speed);
+              setDistanceData(res.data.distance);
+              setPressureRight(res.data.handPressureR);
+              setPressureLeft(res.data.handPressureL);
+              setFootLiftR(res.data.footLiftR);
+              setFootLiftL(res.data.footLiftL);
+            })
+            .catch(err => {
+              console.error("❌ שגיאה בשליפת מדידות לאחר סיום", err);
+            });
+        }, 3000);
         alert("✅ מדידה הסתיימה ונשלחה לשרת");
       }
       console.log(response.data);
