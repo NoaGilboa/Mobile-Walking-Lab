@@ -19,6 +19,7 @@ function PatientDetailsPage() {
   const [notes, setNotes] = useState('');
   const [noteHistory, setNoteHistory] = useState([]);
   const [treatmentRecommendation, setTreatmentRecommendation] = useState('');
+  const [loadingRecommendation, setLoadingRecommendation] = useState(false);
   const [manualDistance, setManualDistance] = useState('');
   const [isTiming, setIsTiming] = useState(false);
   const [startTime, setStartTime] = useState(null);
@@ -100,16 +101,20 @@ function PatientDetailsPage() {
   };
 
 
-  const handleGetRecommendation = () => {
-    getTreatmentRecommendation(userId)
-      .then(response => {
-        setTreatmentRecommendation(response.data.recommendation);
-      })
-      .catch(error => {
-        console.error("Error fetching treatment recommendation", error);
-        alert("❌ לא ניתן לקבל המלצה לטיפול כעת. אנא נסה שוב מאוחר יותר.");
-      });
-  };
+
+const handleGetRecommendation = () => {
+  setLoadingRecommendation(true);
+  getTreatmentRecommendation(userId)
+    .then(response => {
+      setTreatmentRecommendation(response.data.recommendation);
+    })
+    .catch(error => {
+      console.error("Error fetching treatment recommendation", error);
+      alert("❌ לא ניתן לקבל המלצה לטיפול כעת. אנא נסה שוב מאוחר יותר.");
+    })
+    .finally(() => setLoadingRecommendation(false));
+};
+
 
   useEffect(() => {
     let timer;
@@ -340,14 +345,29 @@ function PatientDetailsPage() {
       <button className="delete-button" onClick={handleDeletePatient}>🗑️ מחק</button> */}
       {/* <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button> */}
       <button className="recommendation-button" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
+      {loadingRecommendation && <p>⏳ ממתין לתשובת GPT...</p>}
       {treatmentRecommendation ? (
         <div className="recommendation-box">
           <h3>המלצת טיפול:</h3>
-          <p>{treatmentRecommendation}</p>
+          <div
+            style={{
+              maxHeight: '300px',
+              overflowY: 'auto',
+              whiteSpace: 'pre-line',
+              direction: 'rtl',
+              padding: '10px',
+              backgroundColor: '#f3f3f3',
+              border: '1px solid #ccc',
+              borderRadius: '8px'
+            }}
+          >
+            {treatmentRecommendation}
+          </div>
         </div>
       ) : (
         <p>אין עדיין המלצת טיפול.</p>
       )}
+
       <button className="recommendation-button" onClick={handleExportPdf}>📄 ייצא ל-PDF</button>
 
       <div className="esp-measurement-controls">
