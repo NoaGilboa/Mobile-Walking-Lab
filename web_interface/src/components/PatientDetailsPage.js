@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import SpeedChart from '../components/charts/SpeedChart';
 import PressureChart from '../components/charts/PressureChart';
 import FootLiftChart from '../components/charts/FootLiftChart';
-import { calculateAge, formatTime, reverseText} from '../utils/formatUtils.js';
+import { calculateAge, formatTime, reverseText } from '../utils/formatUtils.js';
 import '.././fonts/Alef-Regular-normal.js';
 import '../index.css';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -47,6 +47,7 @@ function PatientDetailsPage() {
     pressure: 'bar',
     footLift: 'bar',
   });
+
   const handleToggleChartType = (key) => {
     setChartTypes(prev => ({
       ...prev,
@@ -217,40 +218,40 @@ function PatientDetailsPage() {
     }
   };
 
-  const handleExportPdf = async () => {
-    const pdf = new jsPDF("p", "mm", "a4");
-    pdf.setFont('Alef-Regular');
-    const width = pdf.internal.pageSize.getWidth();
-    const chartWidth = width - 20;
-    const chartHeight = chartWidth * 0.6;
+const handleExportPdf = async () => {
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const element = document.querySelector('.patient-details-container');
-    const canvas = await html2canvas(element, {
-      ignoreElements: (el) => el.tagName === 'CANVAS',
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const height = (canvas.height * width) / canvas.width;
+  const element = document.querySelector('.patient-details-container');
+  const canvas = await html2canvas(element, {
+    scale: 2, // איכות גבוהה יותר
+    ignoreElements: (el) => el.classList.contains('no-pdf')
+  });
 
-    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+  const imgData = canvas.toDataURL('image/png');
+  const imgProps = pdf.getImageProperties(imgData);
+  const imgWidth = pageWidth;
+  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-    const addChart = (ref, title) => {
-      if (ref?.current) {
-        const img = ref.current.toBase64Image();
-        pdf.addPage();
-        pdf.setFontSize(16);
-        pdf.setFont('Alef-Regular');
-        pdf.text(reverseText(title), pdf.internal.pageSize.getWidth() - 10, 20, { align: 'right' });
-        pdf.addImage(img, 'PNG', 10, 30, chartWidth, chartHeight);
-      }
-    };
+  let heightLeft = imgHeight;
+  let position = 0;
 
-    addChart(manualChartRef, 'גרף מהירויות ידניות');
-    addChart(espChartRef, 'גרף מהירויות מהבקר');
-    addChart(handPressureChartRef, 'גרף לחץ ידיים מהבקר');
-    addChart(footLiftChartRef, 'גרף מספר ניתוקים של הרגליים מהרצפה');
+  // דף ראשון
+  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
 
-    pdf.save(`patient_${patient?.patient_id}_details.pdf`);
-  };
+  // אם צריך, מוסיפים עוד עמודים
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  pdf.save(`patient_${patient?.patient_id}_details.pdf`);
+};
+
 
   useEffect(() => {
     getDeviceMeasurements(userId)
@@ -300,12 +301,12 @@ function PatientDetailsPage() {
         </ul>
       </div>
 
-      <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      <textarea className="no-pdf" placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <div />
-      <button className="recommendation-button" onClick={handleSaveNotes}>שמור הערות</button>
-      <button className="recommendation-button" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
-      {loadingRecommendation && <p>⏳ ממתין לתשובת GPT...</p>}
-      {treatmentRecommendation? (
+      <button className="recommendation-button no-pdf" onClick={handleSaveNotes}>שמור הערות</button>
+      <button className="recommendation-button no-pdf" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
+      {loadingRecommendation && <p no-pdf>⏳ ממתין לתשובת GPT...</p>}
+      {treatmentRecommendation ? (
         <div className="recommendation-box">
           <h3>המלצת טיפול:</h3>
           <div
@@ -327,9 +328,9 @@ function PatientDetailsPage() {
         <p>אין עדיין המלצת טיפול.</p>
       )}
 
-      <button className="recommendation-button" onClick={handleExportPdf}>📄 ייצא ל-PDF</button>
+      <button className="recommendation-button no-pdf" onClick={handleExportPdf}>📄 ייצא ל-PDF</button>
 
-      <div className="esp-measurement-controls">
+      <div className="esp-measurement-controls no-pdf">
         <button className="recommendation-button" onClick={handleStartEspMeasurement} disabled={espMeasurementRunning}>
           ▶️ התחלת מדידה בבקר
         </button>
@@ -343,11 +344,11 @@ function PatientDetailsPage() {
         )}
       </div>
 
-      <button className="recommendation-button" onClick={() => setShowManualSpeedSection(prev => !prev)} disabled={espMeasurementRunning}>
+      <button className="recommendation-button no-pdf" onClick={() => setShowManualSpeedSection(prev => !prev)} disabled={espMeasurementRunning}>
         {showManualSpeedSection ? 'סגור מדידת מהירות ידנית' : 'מדידת מהירות ידנית'}
       </button>
       {showManualSpeedSection && (
-        <div className="manual-speed-section">
+        <div className="manual-speed-section no-pdf">
           <h3>מדידת מהירות ידנית</h3>
           <input
             type="number"
@@ -363,14 +364,15 @@ function PatientDetailsPage() {
               🕒 זמן נמדד: <strong>{formatTime(elapsedTime)}</strong>
             </p>
           )}
+          {lastSpeed && (
+            <p className="speed-result">
+              ✅ מהירות מחושבת: <strong>{lastSpeed} קמ״ש</strong>
+            </p>
+          )}
         </div>
 
       )}
-      {lastSpeed && (
-        <p className="speed-result">
-          ✅ מהירות מחושבת: <strong>{lastSpeed} קמ״ש</strong>
-        </p>
-      )}
+
       <SpeedChart
         chartType={chartTypes.manual}
         onToggle={() => handleToggleChartType('manual')}
