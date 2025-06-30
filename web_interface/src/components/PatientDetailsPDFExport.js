@@ -38,7 +38,7 @@ function PatientDetailsPDFExport({ patient, noteHistory, treatmentRecommendation
     };
 
     return (
-        <PDFDownloadLink
+        <PDFDownloadLink className="recommendation-button"
             document={
                 <PatientPdfDocument
                     patient={enrichedPatient}
@@ -49,15 +49,15 @@ function PatientDetailsPDFExport({ patient, noteHistory, treatmentRecommendation
             }
             fileName={`patient_${patient.patient_id}_details.pdf`}
         >
-            {({ loading }) => (
-                <div className="recommendation-button">
-                    {loading ? 'טוען PDF...' : (
-                        <>
-                             <img src="/images/pdf_download.svg" style={{width:'20px',height:'20px', verticalAlign: 'middle', marginLeft: 5 }} alt="הורדה" />הורד PDF 
-                        </>
-                    )}
-                </div>
-            )}
+            {({ loading }) =>
+
+                loading ? 'טוען PDF...' : (
+                    <>
+                        <img src="/images/pdf_download.svg" style={{ width: '20px', height: '20px', verticalAlign: 'middle', marginLeft: 5 }} alt="הורדה" />הורד PDF
+                    </>
+                )
+
+            }
         </PDFDownloadLink>
     );
 }
