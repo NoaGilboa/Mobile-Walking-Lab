@@ -38,7 +38,7 @@ function PatientDetailsPDFExport({ patient, noteHistory, treatmentRecommendation
     };
 
     return (
-        <PDFDownloadLink className="recommendation-button"
+        <PDFDownloadLink   style={{ display: 'inline-block', marginBottom: '10px', marginTop:'10px' }}
             document={
                 <PatientPdfDocument
                     patient={enrichedPatient}
