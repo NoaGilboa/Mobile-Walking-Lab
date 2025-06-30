@@ -6,6 +6,7 @@ const FootLiftChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
     const minLength = Math.min(leftData.length, rightData.length);
     const sortedLeft = [...leftData].sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at)).slice(0, minLength);
     const sortedRight = [...rightData].sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at)).slice(0, minLength);
+    const isEmpty = !leftData || !rightData || rightData.length === 0 || leftData.length === 0;
 
     const labels = sortedLeft.map((item, idx) => {
         const date = new Date(item.measured_at);
@@ -67,7 +68,7 @@ const FootLiftChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
     };
 
     return (
-        <div className="chart-container">
+        <div className="chart-container" style={{ position: 'relative' }}>
             <div className="header-chart-type-container">
                 <h4 className="chart-type-title">היסטוריית מספר ניתוקים של הרגל מהרצפה</h4>
                <ToggleSwitch isLine={chartType === 'line'} onToggle={onToggle} />
@@ -76,6 +77,27 @@ const FootLiftChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
                 <Bar ref={chartRef} data={dataset} options={options} />
             ) : (
                 <Line ref={chartRef} data={dataset} options={options} />
+            )}
+            {isEmpty && (
+                <div style={{
+                    position: 'absolute',
+                    top: 50,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.2rem',
+                    fontWeight: 'bold',
+                    color: '#555',
+                    zIndex: 2,
+                    textAlign: 'center',
+                    padding: '1rem'
+                }}>
+                    אין נתונים להצגה
+                </div>
             )}
         </div>
     );
