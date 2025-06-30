@@ -5,11 +5,13 @@ import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentReco
 import { setESP32Command, getDeviceMeasurements, saveDeviceMeasurements } from '../api/deviceApi';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
-ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+
+import {calculateAge,formatTime} from '../utils/formatUtils.js';
 import '.././fonts/Alef-Regular-normal.js';
 import '../index.css';
+ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 
 function PatientDetailsPage() {
@@ -175,12 +177,6 @@ function PatientDetailsPage() {
     }
   };
 
-  const formatTime = (seconds) => {
-    const min = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const sec = (seconds % 60).toString().padStart(2, '0');
-    return `${min}:${sec}`;
-  };
-
   const speedChartData = {
     labels: speedHistory.map((item, idx) => {
       const date = new Date(item.measured_at);
@@ -190,12 +186,104 @@ function PatientDetailsPage() {
     }),
     datasets: [
       {
-        label: 'מהירות (קמ״ש)',
+        label: 'מהירות (מטר לשנייה)',
         data: speedHistory.map(item => item.speed_kmh || item.speed),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
       },
     ],
   };
+
+  const buildDualChartData = (leftData, rightData, labelLeft, labelRight) => {
+    const minLength = Math.min(leftData.length, rightData.length);
+    leftData.sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at));
+    rightData.sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at));
+
+    const labels = leftData.slice(0, minLength).map((item, idx) => {
+      const date = new Date(item.measured_at);
+      const timeStr = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+      const dateStr = date.toLocaleDateString('he-IL');
+      return `מדידה ${idx + 1}\n${dateStr}\n${timeStr}`;
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: labelLeft,
+          data: leftData.slice(0, minLength).map(item => item.value),
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2,
+          fill: false,
+        },
+        {
+          label: labelRight,
+          data: rightData.slice(0, minLength).map(item => item.value),
+          backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 2,
+          fill: false,
+        }
+      ]
+    };
+  };
+
+  const pressureChartData = buildDualChartData(
+    pressureLeft,
+    pressureRight,
+    'לחץ יד שמאל',
+    'לחץ יד ימין'
+  );
+
+  const footLiftChartData = buildDualChartData(
+    footLiftL,
+    footLiftR,
+    'רגל שמאל',
+    'רגל ימין'
+  );
+
+  const buildChartOptions = (yLabel, tooltipFormatter) => ({
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: tooltipFormatter
+        }
+      }
+    },
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: yLabel
+        }
+      },
+      x: {
+        ticks: {
+          callback: function (val, index) {
+            const label = this.getLabelForValue(index);
+            return label.split('\n');
+          }
+        }
+      }
+    }
+  });
+
+  const speedOptions = buildChartOptions('מהירות במטר לשנייה', (context) => {
+    const item = speedHistory[context.dataIndex];
+    const speed = item.speed_kmh || item.speed;
+    return `מהירות: ${speed} מטרים לשנייה`;
+  });
+
+  const pressureOptions = buildChartOptions('לחץ (ק״ג)', (context) => {
+    return `${context.dataset.label}: ${context.formattedValue} ק״ג`;
+  });
+
+  const footLiftOptions = buildChartOptions('מספר ניתוקים', (context) => {
+    return `${context.dataset.label}: ${context.formattedValue} ניתוקים`;
+  });
+
 
   const options = {
     plugins: {
@@ -276,17 +364,6 @@ function PatientDetailsPage() {
       console.error("❌ שגיאה בעצירת מדידה בבקר", error);
       if (!silent) alert("❌ לא ניתן לעצור מדידה כרגע. ודא שהבקר מחובר לרשת.");
     }
-  };
-
-  const calculateAge = (birthDate) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
   };
 
   const handleExportPdf = async () => {
@@ -463,14 +540,14 @@ function PatientDetailsPage() {
 
           </div>
           {chartType === 'bar' ? (
-            <Bar ref={manualChartRef} data={speedChartData} options={options} />
+            <Bar ref={manualChartRef} data={speedChartData} options={speedOptions} />
           ) : (
-            <Line ref={manualChartRef} data={speedChartData} options={options} />
+            <Line ref={manualChartRef} data={speedChartData} options={speedOptions} />
           )}
         </>
       )}
 
-      {speedHistory.length > 0 && (
+      {speedData.length > 0 && (
         <>
           <div className="header-chart-type-container">
             <h4 className="chart-type-title">היסטוריית מהירויות סיבוביות מהבקר</h4>
@@ -479,16 +556,16 @@ function PatientDetailsPage() {
             </button>
           </div>
           {chartType === 'bar' ? (
-            <Bar ref={espChartRef} data={speedChartData} options={options} />
+            <Bar ref={espChartRef} data={speedChartData} options={speedOptions} />
           ) : (
-            <Line ref={espChartRef} data={speedChartData} options={options} />
+            <Line ref={espChartRef} data={speedChartData} options={speedOptions} />
           )}
         </>
       )}
-      {speedHistory.length > 0 && (
+      {pressureLeft.length > 0 && pressureRight.length > 0 && (
         <>
           <div className="header-chart-type-container">
-            <h4 className="chart-type-title">היסטוריית מהירויות סיבוביות מהבקר</h4>
+            <h4 className="chart-type-title">היסטוריית לחץ ידיים מהבקר</h4>
             <div className="chart-type-dropdown-row">
               <label htmlFor="chartSelect">בחר סוג גרף : </label>
               <select
@@ -503,15 +580,15 @@ function PatientDetailsPage() {
 
           </div>
           {chartType === 'bar' ? (
-            <Bar ref={footLiftChartRef} data={speedChartData} options={options} />
+            <Bar ref={handPressureChartRef} data={pressureChartData} options={pressureOptions} />
           ) : (
-            <Line ref={footLiftChartRef} data={speedChartData} options={options} />
+            <Line ref={handPressureChartRef} data={pressureChartData} options={pressureOptions} />
           )}
         </>
       )
       }
       {
-        speedHistory.length > 0 && (
+        footLiftL.length > 0 && footLiftR.length > 0 && (
           <>
             <div className="header-chart-type-container">
               <h4 className="chart-type-title">היסטוריית מספר ניתוקים של הרגל מהרצפה</h4>
@@ -520,9 +597,9 @@ function PatientDetailsPage() {
               </button>
             </div>
             {chartType === 'bar' ? (
-              <Bar ref={handPressureChartRef} data={speedChartData} options={options} />
+              <Bar ref={footLiftChartRef} data={footLiftChartData} options={footLiftOptions} />
             ) : (
-              <Line ref={handPressureChartRef} data={speedChartData} options={options} />
+              <Line ref={footLiftChartRef} data={footLiftChartData} options={footLiftOptions} />
             )}
           </>
         )
