@@ -1,0 +1,24 @@
+.chart-switch-wrapper {
+  display: flex;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #2c7a7b;
+  background-color: #e0f2f1;
+  width: fit-content;
+  font-size: 14px;
+  font-weight: bold;
+  direction: rtl;
+}
+
+.chart-toggle-option {
+  padding: 10px 10px;
+  cursor: pointer;
+  color: #2c3e50;
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.chart-toggle-option.selected {
+  background-color: #2c7a7b;
+  color: white;
+}
