@@ -22,12 +22,17 @@ function PatientDetailsPage() {
   const [treatmentRecommendation, setTreatmentRecommendation] = useState('');
   const [loadingRecommendation, setLoadingRecommendation] = useState(false);
   const [manualDistance, setManualDistance] = useState('');
-  const [isTiming, setIsTiming] = useState(false);
-  const [startTime, setStartTime] = useState(null);
+  // עבור מדידה ידנית
+  const [manualIsTiming, setManualIsTiming] = useState(false);
+  const [manualStartTime, setManualStartTime] = useState(null);
+  const [manualElapsedTime, setManualElapsedTime] = useState(0);
+  // עבור מדידת ESP
+  const [espIsTiming, setEspIsTiming] = useState(false);
+  const [espStartTime, setEspStartTime] = useState(null);
+  const [espElapsedTime, setEspElapsedTime] = useState(0);
   const [speedHistory, setSpeedHistory] = useState([]);
   const [showManualSpeedSection, setShowManualSpeedSection] = useState(false);
   const [lastSpeed, setLastSpeed] = useState(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
   const [espMeasurementRunning, setEspMeasurementRunning] = useState(false);
   const manualChartRef = useRef(null);
   const espChartRef = useRef(null);
@@ -116,25 +121,32 @@ function PatientDetailsPage() {
       .finally(() => setLoadingRecommendation(false));
   };
 
-
+  // מדידה ידנית
   useEffect(() => {
     let timer;
-
-    if (isTiming) {
+    if (manualIsTiming) {
       timer = setInterval(() => {
-        setElapsedTime(prev => prev + 1);
+        setManualElapsedTime(prev => prev + 1);
       }, 1000);
-    } else {
-      clearInterval(timer);
     }
-
     return () => clearInterval(timer);
-  }, [isTiming]);
+  }, [manualIsTiming]);
+
+  // מדידה בבקר
+  useEffect(() => {
+    let timer;
+    if (espIsTiming) {
+      timer = setInterval(() => {
+        setEspElapsedTime(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [espIsTiming]);
 
   const handleStartStopTimer = () => {
-    if (isTiming) {
+    if (manualIsTiming) {
       const endTime = new Date();
-      const durationSeconds = (endTime - startTime) / 1000;
+      const durationSeconds = (endTime - manualStartTime) / 1000;
       const distance = parseFloat(manualDistance);
 
       if (!distance || durationSeconds === 0) {
@@ -154,30 +166,30 @@ function PatientDetailsPage() {
 
       setSpeedHistory(prev => [...prev, newRecord]);
       setLastSpeed(speedResult);
-      setIsTiming(false);
+      setManualIsTiming(false);
+      setManualStartTime(null);
+      setManualElapsedTime(0);
       setManualDistance('');
-      setStartTime(null);
-      setElapsedTime(0);
 
       saveSpeedMeasurement(userId, speedResult)
         .catch(error => console.error("שגיאה בשמירת מהירות", error));
-
     } else {
-      setStartTime(new Date());
-      setIsTiming(true);
+      setManualStartTime(new Date());
+      setManualIsTiming(true);
       setLastSpeed(null);
-      setElapsedTime(0);
+      setManualElapsedTime(0);
     }
   };
+
 
   const handleStartEspMeasurement = async () => {
     try {
       await handleStopEspMeasurement(true);
       const response = await setESP32Command('start', patient.id);
       setEspMeasurementRunning(true);
-      setElapsedTime(0);
-      setIsTiming(true);
-      setStartTime(new Date());
+      setEspIsTiming(true);
+      setEspStartTime(new Date());
+      setEspElapsedTime(0);
       console.log(response.data);
       alert("✅ מדידה התחילה: " + response.data);
     } catch (error) {
@@ -190,8 +202,8 @@ function PatientDetailsPage() {
     try {
       const response = await setESP32Command('stop', patient.id);
       setEspMeasurementRunning(false);
-      setIsTiming(false);
-      setStartTime(null);
+      setEspIsTiming(false);
+      setEspStartTime(null);
 
       if (!silent) {
         setTimeout(() => {
@@ -309,9 +321,9 @@ function PatientDetailsPage() {
         <button className="recommendation-button" onClick={() => handleStopEspMeasurement(false)} disabled={!espMeasurementRunning}>
           ⏹️ סיום מדידה בבקר
         </button>
-        {((isTiming || elapsedTime > 0) && espMeasurementRunning) && (
+        {((espIsTiming || espElapsedTime > 0)  && espMeasurementRunning) && (
           <p className="timer-display">
-            🕒 זמן מדידה: <strong>{formatTime(elapsedTime)}</strong>
+            🕒 זמן מדידה: <strong>{formatTime(espElapsedTime)}</strong>
           </p>
         )}
       </div>
@@ -329,11 +341,11 @@ function PatientDetailsPage() {
             onChange={(e) => setManualDistance(e.target.value)}
           />
           <button className="timer-button" onClick={handleStartStopTimer}>
-            {isTiming ? 'עצור שעון וחשב מהירות' : 'התחל מדידת זמן'}
+            {manualIsTiming ? 'עצור שעון וחשב מהירות' : 'התחל מדידת זמן'}
           </button>
-          {isTiming && (
+          {manualIsTiming && (
             <p className="timer-display">
-              🕒 זמן נמדד: <strong>{formatTime(elapsedTime)}</strong>
+              🕒 זמן נמדד: <strong>{formatTime(manualElapsedTime)}</strong>
             </p>
           )}
           {lastSpeed && (
