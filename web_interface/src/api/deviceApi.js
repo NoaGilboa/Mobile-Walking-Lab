@@ -10,8 +10,4 @@ export const getDeviceMeasurements = (userId) => {
   return axios.get(`${BASE_URL}/device/${userId}/measurements`);
 };
 
-//get measurements from esp32 and save measurements at db
-export const saveDeviceMeasurements = (userId, measurements) => {
-  return axios.post(`${BASE_URL}/device/${userId}/data`, measurements);
-};
 

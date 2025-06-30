@@ -2,15 +2,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { setESP32Command, getDeviceMeasurements, saveDeviceMeasurements } from '../api/deviceApi';
+import { setESP32Command, getDeviceMeasurements } from '../api/deviceApi';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import SpeedChart from '../components/charts/SpeedChart';
 import PressureChart from '../components/charts/PressureChart';
 import FootLiftChart from '../components/charts/FootLiftChart';
-import { calculateAge, formatTime, reverseText } from '../utils/formatUtils.js';
-import '.././fonts/Alef-Regular-normal.js';
+import { calculateAge, formatTime } from '../utils/formatUtils.js';
+import PatientDetailsPDFExport from '../components/PatientDetailsPDFExport';
 import '../index.css';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -41,6 +39,7 @@ function PatientDetailsPage() {
   const [pressureLeft, setPressureLeft] = useState([]);
   const [footLiftR, setFootLiftR] = useState([]);
   const [footLiftL, setFootLiftL] = useState([]);
+  const [chartImages, setChartImages] = useState([]);
   const [chartTypes, setChartTypes] = useState({
     manual: 'bar',
     esp: 'bar',
@@ -218,41 +217,6 @@ function PatientDetailsPage() {
     }
   };
 
-const handleExportPdf = async () => {
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-
-  const element = document.querySelector('.patient-details-container');
-  const canvas = await html2canvas(element, {
-    scale: 2, // איכות גבוהה יותר
-    ignoreElements: (el) => el.classList.contains('no-pdf')
-  });
-
-  const imgData = canvas.toDataURL('image/png');
-  const imgProps = pdf.getImageProperties(imgData);
-  const imgWidth = pageWidth;
-  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-  let heightLeft = imgHeight;
-  let position = 0;
-
-  // דף ראשון
-  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  // אם צריך, מוסיפים עוד עמודים
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
-
-  pdf.save(`patient_${patient?.patient_id}_details.pdf`);
-};
-
-
   useEffect(() => {
     getDeviceMeasurements(userId)
       .then(res => {
@@ -301,14 +265,14 @@ const handleExportPdf = async () => {
         </ul>
       </div>
 
-      <textarea className="no-pdf" placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <div />
-      <button className="recommendation-button no-pdf" onClick={handleSaveNotes}>שמור הערות</button>
-      <button className="recommendation-button no-pdf" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
-      {loadingRecommendation && <p no-pdf>⏳ ממתין לתשובת GPT...</p>}
+      <button className="recommendation-button" onClick={handleSaveNotes}>שמור הערות</button>
+      <button className="recommendation-button" onClick={handleGetRecommendation}>קבל המלצת טיפול מ- GPT</button>
+      {loadingRecommendation && <p>⏳ ממתין לתשובת GPT...</p>}
       {treatmentRecommendation ? (
         <div className="recommendation-box">
-          <h3>המלצת טיפול:</h3>
+          <h3>המלצת טיפול מ- GPT:</h3>
           <div
             style={{
               maxHeight: '300px',
@@ -327,10 +291,18 @@ const handleExportPdf = async () => {
       ) : (
         <p>אין עדיין המלצת טיפול.</p>
       )}
-
-      <button className="recommendation-button no-pdf" onClick={handleExportPdf}>📄 ייצא ל-PDF</button>
-
-      <div className="esp-measurement-controls no-pdf">
+      <PatientDetailsPDFExport
+        patient={patient}
+        noteHistory={noteHistory}
+        treatmentRecommendation={treatmentRecommendation}
+        refs={{
+          manualChartRef,
+          espChartRef,
+          handPressureChartRef,
+          footLiftChartRef
+        }}
+      />
+      <div className="esp-measurement-controls">
         <button className="recommendation-button" onClick={handleStartEspMeasurement} disabled={espMeasurementRunning}>
           ▶️ התחלת מדידה בבקר
         </button>
@@ -344,11 +316,11 @@ const handleExportPdf = async () => {
         )}
       </div>
 
-      <button className="recommendation-button no-pdf" onClick={() => setShowManualSpeedSection(prev => !prev)} disabled={espMeasurementRunning}>
+      <button className="recommendation-button" onClick={() => setShowManualSpeedSection(prev => !prev)} disabled={espMeasurementRunning}>
         {showManualSpeedSection ? 'סגור מדידת מהירות ידנית' : 'מדידת מהירות ידנית'}
       </button>
       {showManualSpeedSection && (
-        <div className="manual-speed-section no-pdf">
+        <div className="manual-speed-section">
           <h3>מדידת מהירות ידנית</h3>
           <input
             type="number"
