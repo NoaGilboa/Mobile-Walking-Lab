@@ -16,3 +16,5 @@ export const formatTime = (seconds) => {
     }
     return age;
   };
+
+ export const reverseText = (text) => text.split('').reverse().join('');

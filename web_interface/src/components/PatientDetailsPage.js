@@ -3,12 +3,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
 import { setESP32Command, getDeviceMeasurements, saveDeviceMeasurements } from '../api/deviceApi';
-import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-
-import {calculateAge,formatTime} from '../utils/formatUtils.js';
+import SpeedChart from '../components/charts/SpeedChart';
+import PressureChart from '../components/charts/PressureChart';
+import FootLiftChart from '../components/charts/FootLiftChart';
+import { calculateAge, formatTime, reverseText} from '../utils/formatUtils.js';
 import '.././fonts/Alef-Regular-normal.js';
 import '../index.css';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -29,7 +30,6 @@ function PatientDetailsPage() {
   const [showManualSpeedSection, setShowManualSpeedSection] = useState(false);
   const [lastSpeed, setLastSpeed] = useState(null);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [chartType, setChartType] = useState('bar');
   const [espMeasurementRunning, setEspMeasurementRunning] = useState(false);
   const manualChartRef = useRef(null);
   const espChartRef = useRef(null);
@@ -41,6 +41,20 @@ function PatientDetailsPage() {
   const [pressureLeft, setPressureLeft] = useState([]);
   const [footLiftR, setFootLiftR] = useState([]);
   const [footLiftL, setFootLiftL] = useState([]);
+  const [chartTypes, setChartTypes] = useState({
+    manual: 'bar',
+    esp: 'bar',
+    pressure: 'bar',
+    footLift: 'bar',
+  });
+  const handleToggleChartType = (key) => {
+    setChartTypes(prev => ({
+      ...prev,
+      [key]: prev[key] === 'bar' ? 'line' : 'bar'
+    }));
+  };
+
+
 
   useEffect(() => {
     // בקשה לנתונים של המטופל לפי ה-ID
@@ -88,27 +102,6 @@ function PatientDetailsPage() {
         console.error("Error saving note", error);
       });
   };
-
-  const handleDeletePatient = () => {
-    const confirmed = window.confirm("האם אתה בטוח שברצונך למחוק את המטופל?");
-    if (!confirmed) return;
-
-    fetch(`${BASE_URL}/patients/${userId}`, { method: 'DELETE' })
-      .then((res) => {
-        if (res.ok) {
-          alert("🗑️ המטופל נמחק");
-          navigate('/patients');
-        } else {
-          alert("❌ שגיאה במחיקה");
-        }
-      })
-      .catch((err) => {
-        console.error("Error deleting patient", err);
-        alert("❌ שגיאה בשרת");
-      });
-  };
-
-
 
   const handleGetRecommendation = () => {
     setLoadingRecommendation(true);
@@ -174,148 +167,6 @@ function PatientDetailsPage() {
       setIsTiming(true);
       setLastSpeed(null);
       setElapsedTime(0);
-    }
-  };
-
-  const speedChartData = {
-    labels: speedHistory.map((item, idx) => {
-      const date = new Date(item.measured_at);
-      const timeStr = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-      const dateStr = date.toLocaleDateString('he-IL');
-      return `מדידה ${idx + 1}\n${dateStr}\n${timeStr}`;
-    }),
-    datasets: [
-      {
-        label: 'מהירות (מטר לשנייה)',
-        data: speedHistory.map(item => item.speed_kmh || item.speed),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      },
-    ],
-  };
-
-  const buildDualChartData = (leftData, rightData, labelLeft, labelRight) => {
-    const minLength = Math.min(leftData.length, rightData.length);
-    leftData.sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at));
-    rightData.sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at));
-
-    const labels = leftData.slice(0, minLength).map((item, idx) => {
-      const date = new Date(item.measured_at);
-      const timeStr = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-      const dateStr = date.toLocaleDateString('he-IL');
-      return `מדידה ${idx + 1}\n${dateStr}\n${timeStr}`;
-    });
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: labelLeft,
-          data: leftData.slice(0, minLength).map(item => item.value),
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 2,
-          fill: false,
-        },
-        {
-          label: labelRight,
-          data: rightData.slice(0, minLength).map(item => item.value),
-          backgroundColor: 'rgba(255, 99, 132, 0.6)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 2,
-          fill: false,
-        }
-      ]
-    };
-  };
-
-  const pressureChartData = buildDualChartData(
-    pressureLeft,
-    pressureRight,
-    'לחץ יד שמאל',
-    'לחץ יד ימין'
-  );
-
-  const footLiftChartData = buildDualChartData(
-    footLiftL,
-    footLiftR,
-    'רגל שמאל',
-    'רגל ימין'
-  );
-
-  const buildChartOptions = (yLabel, tooltipFormatter) => ({
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: tooltipFormatter
-        }
-      }
-    },
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: yLabel
-        }
-      },
-      x: {
-        ticks: {
-          callback: function (val, index) {
-            const label = this.getLabelForValue(index);
-            return label.split('\n');
-          }
-        }
-      }
-    }
-  });
-
-  const speedOptions = buildChartOptions('מהירות במטר לשנייה', (context) => {
-    const item = speedHistory[context.dataIndex];
-    const speed = item.speed_kmh || item.speed;
-    return `מהירות: ${speed} מטרים לשנייה`;
-  });
-
-  const pressureOptions = buildChartOptions('לחץ (ק״ג)', (context) => {
-    return `${context.dataset.label}: ${context.formattedValue} ק״ג`;
-  });
-
-  const footLiftOptions = buildChartOptions('מספר ניתוקים', (context) => {
-    return `${context.dataset.label}: ${context.formattedValue} ניתוקים`;
-  });
-
-
-  const options = {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const item = speedHistory[context.dataIndex];
-            const speed = item.speed_kmh || item.speed;
-            const source = item.source || 'unknown';
-            const footLifts = item.foot_lift_count != null ? item.foot_lift_count : 'N/A';
-            return `מהירות: ${speed} קמ״ש\nמקור: ${source}\nצעדים: ${footLifts}`;
-          }
-        }
-      }
-    },
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'מהירות בקמ״ש'
-        }
-      },
-      x: {
-        ticks: {
-          callback: function (val, index) {
-            const label = this.getLabelForValue(index);
-            return label.split('\n');
-          }
-        }
-      }
     }
   };
 
@@ -394,13 +245,12 @@ function PatientDetailsPage() {
     };
 
     addChart(manualChartRef, 'גרף מהירויות ידניות');
-    addChart(espChartRef, 'גרף מהירויות סיבוביות מהבקר');
-    addChart(footLiftChartRef, 'גרף ניתוקים של רגליים');
-    addChart(handPressureChartRef, 'גרף לחצים בידיים');
+    addChart(espChartRef, 'גרף מהירויות מהבקר');
+    addChart(handPressureChartRef, 'גרף לחץ ידיים מהבקר');
+    addChart(footLiftChartRef, 'גרף מספר ניתוקים של הרגליים מהרצפה');
 
     pdf.save(`patient_${patient?.patient_id}_details.pdf`);
   };
-  const reverseText = (text) => text.split('').reverse().join('');
 
   useEffect(() => {
     getDeviceMeasurements(userId)
@@ -453,12 +303,9 @@ function PatientDetailsPage() {
       <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <div />
       <button className="recommendation-button" onClick={handleSaveNotes}>שמור הערות</button>
-      {/* <button className="edit-button" onClick={() => navigate(`/patients/${userId}/edit`)}>✏️ ערוך</button>
-      <button className="delete-button" onClick={handleDeletePatient}>🗑️ מחק</button> */}
-      {/* <button className="back-button" onClick={() => navigate('/patients')}>חזור לרשימת המטופלים</button> */}
       <button className="recommendation-button" onClick={handleGetRecommendation}>קבל המלצת טיפול</button>
       {loadingRecommendation && <p>⏳ ממתין לתשובת GPT...</p>}
-      {treatmentRecommendation ? (
+      {treatmentRecommendation? (
         <div className="recommendation-box">
           <h3>המלצת טיפול:</h3>
           <div
@@ -524,86 +371,39 @@ function PatientDetailsPage() {
           ✅ מהירות מחושבת: <strong>{lastSpeed} קמ״ש</strong>
         </p>
       )}
+      <SpeedChart
+        chartType={chartTypes.manual}
+        onToggle={() => handleToggleChartType('manual')}
+        chartRef={manualChartRef}
+        data={speedHistory}
+        title={"ידניות"}
+        type={'manual'}
+      />
 
-      {speedHistory.length > 0 && (
-        <>
-          <div className="header-chart-type-container">
-            <h4 className="chart-type-title">היסטוריית מהירויות ידניות</h4>
-            <div className="chart-toggle-container">
-              <span className="chart-label">גרף :</span>
-              <label className="switch">
-                <input type="checkbox" checked={chartType === 'line'} onChange={() => setChartType(prev => prev === 'bar' ? 'line' : 'bar')} />
-                <span className="slider round"></span>
-              </label>
-              <span className="chart-label">{chartType === 'bar' ? 'עמודות 📊' : 'עקומה 📈'}</span>
-            </div>
+      <SpeedChart
+        chartType={chartTypes.esp}
+        onToggle={() => handleToggleChartType('esp')}
+        chartRef={espChartRef}
+        data={speedData}
+        title={"מהבקר"}
+        type={'esp'}
+      />
 
-          </div>
-          {chartType === 'bar' ? (
-            <Bar ref={manualChartRef} data={speedChartData} options={speedOptions} />
-          ) : (
-            <Line ref={manualChartRef} data={speedChartData} options={speedOptions} />
-          )}
-        </>
-      )}
+      <PressureChart
+        chartType={chartTypes.pressure}
+        onToggle={() => handleToggleChartType('pressure')}
+        chartRef={handPressureChartRef}
+        leftData={pressureLeft}
+        rightData={pressureRight}
+      />
 
-      {speedData.length > 0 && (
-        <>
-          <div className="header-chart-type-container">
-            <h4 className="chart-type-title">היסטוריית מהירויות סיבוביות מהבקר</h4>
-            <button className="chart-type-button" onClick={() => setChartType(prev => prev === 'bar' ? 'line' : 'bar')}>
-              שנה לגרף {chartType === 'bar' ? 'עקומה 📈' : 'עמודות 📊'}
-            </button>
-          </div>
-          {chartType === 'bar' ? (
-            <Bar ref={espChartRef} data={speedChartData} options={speedOptions} />
-          ) : (
-            <Line ref={espChartRef} data={speedChartData} options={speedOptions} />
-          )}
-        </>
-      )}
-      {pressureLeft.length > 0 && pressureRight.length > 0 && (
-        <>
-          <div className="header-chart-type-container">
-            <h4 className="chart-type-title">היסטוריית לחץ ידיים מהבקר</h4>
-            <div className="chart-type-dropdown-row">
-              <label htmlFor="chartSelect">בחר סוג גרף : </label>
-              <select
-                id="chartSelect"
-                value={chartType}
-                onChange={(e) => setChartType(e.target.value)}
-              >
-                <option value="bar">📊 גרף עמודות</option>
-                <option value="line">📈 גרף עקומה</option>
-              </select>
-            </div>
-
-          </div>
-          {chartType === 'bar' ? (
-            <Bar ref={handPressureChartRef} data={pressureChartData} options={pressureOptions} />
-          ) : (
-            <Line ref={handPressureChartRef} data={pressureChartData} options={pressureOptions} />
-          )}
-        </>
-      )
-      }
-      {
-        footLiftL.length > 0 && footLiftR.length > 0 && (
-          <>
-            <div className="header-chart-type-container">
-              <h4 className="chart-type-title">היסטוריית מספר ניתוקים של הרגל מהרצפה</h4>
-              <button className="timer-button" onClick={() => setChartType(prev => prev === 'bar' ? 'line' : 'bar')}>
-                שנה לגרף {chartType === 'bar' ? 'עקומה 📈' : 'עמודות 📊'}
-              </button>
-            </div>
-            {chartType === 'bar' ? (
-              <Bar ref={footLiftChartRef} data={footLiftChartData} options={footLiftOptions} />
-            ) : (
-              <Line ref={footLiftChartRef} data={footLiftChartData} options={footLiftOptions} />
-            )}
-          </>
-        )
-      }
+      <FootLiftChart
+        chartType={chartTypes.footLift}
+        onToggle={() => handleToggleChartType('footLift')}
+        chartRef={footLiftChartRef}
+        leftData={footLiftL}
+        rightData={footLiftR}
+      />
     </div >
   );
 }

@@ -247,13 +247,6 @@ button:disabled {
 }
 
 
-/* .header-chart-type-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  direction: rtl;
-} */
 
 .header-chart-type-container {
   display: flex;
