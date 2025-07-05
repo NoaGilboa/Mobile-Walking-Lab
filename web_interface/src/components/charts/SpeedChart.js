@@ -1,19 +1,26 @@
 // SpeedChart.js
 import { Bar, Line } from 'react-chartjs-2';
 import ToggleSwitch from './ToggleSwitch';
+import { useEffect, useMemo } from 'react';
+
 
 const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type }) => {
     const isEmpty = !data || data.length === 0;
 
 
-    const labels = data.slice().sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at)).map((item, idx) => {
-        const date = new Date(item.measured_at);
-        const timeStr = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-        const dateStr = date.toLocaleDateString('he-IL');
-        return `מדידה ${idx + 1}\n${dateStr}\n${timeStr}`;
-    });
 
-    const dataset = {
+    const sortedData = useMemo(() =>
+        data.slice().sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at)), [data]);
+
+    const labels = useMemo(() =>
+        sortedData.map((item, idx) => {
+            const date = new Date(item.measured_at);
+            const timeStr = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = date.toLocaleDateString('he-IL');
+            return `מדידה ${idx + 1}\n${dateStr}\n${timeStr}`;
+        }), [sortedData]);
+
+    const dataset = useMemo(() => ({
         labels,
         datasets: [
             {
@@ -22,7 +29,7 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type }) => {
                 backgroundColor: type === 'manual' ? 'rgba(75, 83, 192, 0.6)' : 'rgba(75, 192, 126, 0.6)',
             }
         ]
-    };
+    }), [labels, sortedData, type]);
 
     const options = {
         responsive: true,
@@ -53,7 +60,14 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type }) => {
             }
         }
     };
-
+    useEffect(() => {
+        if (chartRef?.current?.chart) {
+            const chart = chartRef.current.chart;
+            chart.config.type = chartType;
+            chart.data = dataset;
+            chart.update();
+        }
+    }, [dataset, chartType]);
     return (
         <div className="chart-container" style={{ position: 'relative' }}>
             <div className="header-chart-type-container">

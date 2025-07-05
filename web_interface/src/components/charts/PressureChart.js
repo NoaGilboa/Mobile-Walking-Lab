@@ -1,6 +1,7 @@
 // PressureChart.js
 import { Bar, Line } from 'react-chartjs-2';
 import ToggleSwitch from './ToggleSwitch';
+import { useMemo, useEffect } from 'react';
 
 const PressureChart = ({ chartType, onToggle, chartRef, leftData, rightData }) => {
     const minLength = Math.min(leftData.length, rightData.length);
@@ -8,14 +9,14 @@ const PressureChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
     const sortedRight = [...rightData].sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at)).slice(0, minLength);
     const isEmpty = !leftData || !rightData || rightData.length === 0 || leftData.length === 0;
 
-    const labels = sortedLeft.map((item, idx) => {
+    const labels = useMemo(() => sortedLeft.map((item, idx) => {
         const date = new Date(item.measured_at);
         const timeStr = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
         const dateStr = date.toLocaleDateString('he-IL');
         return `מדידה ${idx + 1}\n${dateStr}\n${timeStr}`;
-    });
+    }), [sortedLeft]);
 
-    const dataset = {
+    const dataset = useMemo(() => ({
         labels,
         datasets: [
             {
@@ -35,7 +36,7 @@ const PressureChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
                 fill: false
             }
         ]
-    };
+    }), [labels, sortedLeft, sortedRight]);
 
     const options = {
         responsive: true,
@@ -66,6 +67,14 @@ const PressureChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
             }
         }
     };
+
+    useEffect(() => {
+        if (chartRef?.current && chartRef.current.chart) {
+            const chartInstance = chartRef.current.chart;
+            chartInstance.data = dataset;
+            chartInstance.update();
+        }
+    }, [dataset]);
 
     return (
         <div className="chart-container" style={{ position: 'relative' }}>
