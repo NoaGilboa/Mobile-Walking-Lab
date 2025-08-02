@@ -384,3 +384,38 @@ button:disabled {
   border-color: #26a69a;
   outline: none;
 }
+
+.video-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.video-popup-content {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.close-video-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background-color: #d33;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+

@@ -10,4 +10,7 @@ export const getDeviceMeasurements = (userId) => {
   return axios.get(`${BASE_URL}/device/${userId}/measurements`);
 };
 
-
+// Get video by measurement ID
+export const getVideoByMeasurementId = (measurementId) => {
+  return axios.get(`${BASE_URL}/video/by-measurement/${measurementId}`);
+};

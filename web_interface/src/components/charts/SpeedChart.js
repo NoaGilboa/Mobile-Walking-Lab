@@ -4,7 +4,7 @@ import ToggleSwitch from './ToggleSwitch';
 import { useEffect, useMemo } from 'react';
 
 
-const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type }) => {
+const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type, onBarClick }) => {
     const isEmpty = !data || data.length === 0;
 
 
@@ -33,6 +33,13 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type }) => {
 
     const options = {
         responsive: true,
+         onClick: (evt, elements) => {
+            if (elements.length > 0 && onBarClick) {
+                const index = elements[0].index;
+                const clickedMeasurement = sortedData[index];
+                    onBarClick(17);
+            }
+        },
         scales: {
             y: {
                 beginAtZero: true,

@@ -2,13 +2,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { setESP32Command, getDeviceMeasurements } from '../api/deviceApi';
+import { setESP32Command, getDeviceMeasurements, getVideoByMeasurementId } from '../api/deviceApi';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 import SpeedChart from '../components/charts/SpeedChart';
 import PressureChart from '../components/charts/PressureChart';
 import FootLiftChart from '../components/charts/FootLiftChart';
 import { calculateAge, formatTime } from '../utils/formatUtils.js';
 import PatientDetailsPDFExport from '../components/PatientDetailsPDFExport';
+import VideoPopup from '../components/VideoPopup';
 import '../index.css';
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -44,7 +45,7 @@ function PatientDetailsPage() {
   const [pressureLeft, setPressureLeft] = useState([]);
   const [footLiftR, setFootLiftR] = useState([]);
   const [footLiftL, setFootLiftL] = useState([]);
-  const [chartImages, setChartImages] = useState([]);
+  const [videoUrl, setVideoUrl] = useState(null);
   const [chartTypes, setChartTypes] = useState({
     manual: 'bar',
     esp: 'bar',
@@ -244,6 +245,22 @@ function PatientDetailsPage() {
       });
   }, [userId]);
 
+  const handleVideoOpen = async (measurementId) => {
+    try {
+      const res = await getVideoByMeasurementId(measurementId);
+      if (res.data?.blob_url) {
+        setVideoUrl(res.data.blob_url);
+      } else {
+        alert("❌ לא נמצא סרטון עבור מדידה זו");
+      }
+    } catch (err) {
+      console.error("Error fetching video for measurement", err);
+      alert("❌ שגיאה בטעינת הסרטון");
+    }
+  };
+
+
+
   if (!patient) return <div>טוען נתונים...</div>;
 
   return (
@@ -321,7 +338,7 @@ function PatientDetailsPage() {
         <button className="recommendation-button" onClick={() => handleStopEspMeasurement(false)} disabled={!espMeasurementRunning}>
           ⏹️ סיום מדידה בבקר
         </button>
-        {((espIsTiming || espElapsedTime > 0)  && espMeasurementRunning) && (
+        {((espIsTiming || espElapsedTime > 0) && espMeasurementRunning) && (
           <p className="timer-display">
             🕒 זמן מדידה: <strong>{formatTime(espElapsedTime)}</strong>
           </p>
@@ -373,7 +390,9 @@ function PatientDetailsPage() {
         data={speedData}
         title={"מהבקר"}
         type={'esp'}
+        onBarClick={handleVideoOpen}
       />
+
 
       <PressureChart
         chartType={chartTypes.pressure}
@@ -390,7 +409,9 @@ function PatientDetailsPage() {
         leftData={footLiftL}
         rightData={footLiftR}
       />
+      <VideoPopup videoUrl={videoUrl} onClose={() => setVideoUrl(null)} />
     </div >
+
   );
 }
 
