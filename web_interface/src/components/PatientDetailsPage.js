@@ -45,7 +45,10 @@ function PatientDetailsPage() {
   const [pressureLeft, setPressureLeft] = useState([]);
   const [footLiftR, setFootLiftR] = useState([]);
   const [footLiftL, setFootLiftL] = useState([]);
+
   const [videoUrl, setVideoUrl] = useState(null);
+  const [videoPlaceholder, setVideoPlaceholder] = useState(null);
+
   const [chartTypes, setChartTypes] = useState({
     manual: 'bar',
     esp: 'bar',
@@ -249,13 +252,18 @@ function PatientDetailsPage() {
     try {
       const res = await getVideoByMeasurementId(measurementId);
       if (res.data?.blob_url) {
+        setVideoPlaceholder(null);
         setVideoUrl(res.data.blob_url);
       } else {
-        alert("❌ לא נמצא סרטון עבור מדידה זו");
+        // אין סרטון – מציגים פופ‑אפ עם פלייסהולדר
+        setVideoUrl(null);
+        setVideoPlaceholder('לא קיים סרטון מתאריך זה');
       }
     } catch (err) {
       console.error("Error fetching video for measurement", err);
-      alert("❌ שגיאה בטעינת הסרטון");
+      // במקרה של שגיאה – גם מציגים פלייסהולדר במקום alert
+      setVideoUrl(null);
+      setVideoPlaceholder('שגיאה בטעינת הסרטון');
     }
   };
 
@@ -331,6 +339,14 @@ function PatientDetailsPage() {
           footLiftChartRef
         }}
       />
+      <div className="measurement-policy-box">
+        <p className="measurement-policy-title">מידע חשוב לפני התחלת מדידה</p>
+        <ul className="measurement-policy-list">
+          <li>המערכת תבצע מדידת נתוני הליכה (מהירות, מרחק, לחץ ידיים והרמות כף רגל).</li>
+          <li>בעת המדידה תתבצע גם צילום וידאו ממוקד של כף/כפות הרגליים לצורכי תיעוד וקליניקה.</li>
+          <li>בלחיצה על "התחלת מדידה בבקר" הינך מאשר/ת את ביצוע המדידה והצילום.</li>
+        </ul>
+      </div>
       <div className="esp-measurement-controls">
         <button className="recommendation-button" onClick={handleStartEspMeasurement} disabled={espMeasurementRunning}>
           ▶️ התחלת מדידה בבקר
@@ -383,6 +399,9 @@ function PatientDetailsPage() {
         type={'manual'}
       />
 
+    <p className="chart-tip">
+        💡 לחיצה על עמודה בגרף המהירויות מהבקר תפתח פופ‑אפ של סרטון המדידה (אם קיים).
+      </p>
       <SpeedChart
         chartType={chartTypes.esp}
         onToggle={() => handleToggleChartType('esp')}

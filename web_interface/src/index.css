@@ -418,4 +418,55 @@ button:disabled {
   cursor: pointer;
 }
 
+/* תיבת מדיניות לפני מדידה */
+.measurement-policy-box {
+  background: #fff8e1;
+  border: 1px solid #f5e0a3;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0 6px;
+}
+.measurement-policy-title {
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+.measurement-policy-list {
+  margin: 0;
+  padding-inline-start: 20px;
+}
+
+/* טיפ ליד הגרף */
+.chart-tip {
+  margin: 8px 0 4px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* פלייסהולדר בווידאו */
+.video-placeholder {
+  width: 80vw;
+  max-width: 900px;
+  height: calc(80vw * 9 / 16);
+  max-height: 60vh;
+  min-height: 240px;
+  border-radius: 8px;
+  border: 2px dashed #bbb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  text-align: center;
+  background: #fafafa;
+}
+.video-placeholder-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+.video-placeholder-text {
+  font-size: 1.1rem;
+}
+
+
 
