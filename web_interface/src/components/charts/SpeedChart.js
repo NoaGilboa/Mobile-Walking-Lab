@@ -25,7 +25,7 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type, onBarCli
         datasets: [
             {
                 label: 'מהירות (מטר לשנייה)',
-                data: data.map(item => item.value || item.speed_kmh || item.speed),
+                data: sortedData.map(item => item.value || item.speed_kmh || item.speed),
                 backgroundColor: type === 'manual' ? 'rgba(75, 83, 192, 0.6)' : 'rgba(75, 192, 126, 0.6)',
             }
         ]
