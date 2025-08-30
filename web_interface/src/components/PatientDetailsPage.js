@@ -248,8 +248,10 @@ function PatientDetailsPage() {
       });
   }, [userId]);
 
-const handleVideoOpen = async (measurementId, measuredAt, patientId) => {
-  try {
+const handleVideoOpen = async (measurementId, measuredAt) => {
+  const pid = patient?.id ?? Number(userId);
+  console.log('open video params', { measurementId, measuredAt, pid: patient?.id, userId });
+   try {
     // 1) ניסיון ע"פ measurementId
     if (measurementId) {
       const res = await getVideoByMeasurementId(measurementId);
@@ -260,7 +262,12 @@ const handleVideoOpen = async (measurementId, measuredAt, patientId) => {
       }
     }
     // 2) נפילה: ניסיון לפי זמן (קרוב ביותר)
-    const res2 = await getVideoByClosestTime(patientId, measuredAt);
+      if (!pid || !measuredAt) {
+        setVideoUrl(null);
+        setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
+        return;
+      }
+    const res2 = await getVideoByClosestTime(pid, measuredAt);
     if (res2.data?.blob_url) {
       setVideoPlaceholder(null);
       setVideoUrl(res2.data.blob_url);
@@ -437,7 +444,9 @@ const handleVideoOpen = async (measurementId, measuredAt, patientId) => {
         leftData={footLiftL}
         rightData={footLiftR}
       />
-      <VideoPopup videoUrl={videoUrl} onClose={() => setVideoUrl(null)} />
+
+      <VideoPopup videoUrl={videoUrl} placeholderText={videoPlaceholder} onClose={() => { setVideoUrl(null); setVideoPlaceholder(null); }}/>    
+     
     </div >
 
   );

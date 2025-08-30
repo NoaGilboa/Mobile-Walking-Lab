@@ -35,10 +35,9 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type, onBarCli
         responsive: true,
          onClick: (evt, elements) => {
             if (elements.length > 0 && onBarClick) {
-                const idx = elements[0].index;
-                const m = sortedData[idx];
-                const mid = m.device_measurement_id || m.measurement_id || m.id; // מה שיש בדאטה שלך
-                onBarClick(mid, m.measured_at, m.patient_id);
+                const mid = m?.device_measurement_id ?? m?.measurement_id ?? m?.id;
+                const when = m?.measured_at ?? m?.timestamp ?? m?.created_at;
+                onBarClick(mid, when);
             }
         },
         scales: {
