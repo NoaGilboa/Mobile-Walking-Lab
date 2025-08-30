@@ -20,3 +20,14 @@ export const getVideoByClosestTime = (patientId, isoTime, windowSec = 900) => {
   return axios.get(`${BASE_URL}/video/by-time?${params.toString()}`);
 };
 
+export const getVideoStreamByMeasurementUrl = (measurementId) =>
+  `${BASE_URL}/video/stream/by-measurement/${measurementId}.mp4`;
+
+export const getVideoStreamByTimeUrl = (patientId, isoTime, windowSec = 900) => {
+  const params = new URLSearchParams({
+    patientId: String(patientId),
+    t: new Date(isoTime).toISOString(),
+    windowSec: String(windowSec),
+  });
+  return `${BASE_URL}/video/stream/by-time.mp4?${params.toString()}`;
+};

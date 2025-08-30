@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { setESP32Command, getDeviceMeasurements, getVideoByMeasurementId,getVideoByClosestTime } from '../api/deviceApi';
+import { setESP32Command, getDeviceMeasurements, getVideoByMeasurementId,getVideoByClosestTime, getVideoStreamByMeasurementUrl, getVideoStreamByTimeUrl } from '../api/deviceApi';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 import SpeedChart from '../components/charts/SpeedChart';
 import PressureChart from '../components/charts/PressureChart';
@@ -251,39 +251,42 @@ function PatientDetailsPage() {
 const handleVideoOpen = async (measurementId, measuredAt) => {
   const pid = patient?.id ?? Number(userId);
   console.log('open video params', { measurementId, measuredAt, pid: patient?.id, userId });
-   try {
-    // 1) ניסיון ע"פ measurementId
+
+  try {
+    setVideoUrl(null);
+    setVideoPlaceholder(null);
+
+    // 1) ניסיון לפי מזהה מדידה → אם קיים וידאו בשרת, ננגן דרך המסלול הממיר ל-MP4
     if (measurementId) {
       const res = await getVideoByMeasurementId(measurementId);
       if (res.data?.blob_url) {
-        setVideoPlaceholder(null);
-        setVideoUrl(res.data.blob_url);
+        setVideoUrl(getVideoStreamByMeasurementUrl(measurementId));
         return;
       }
     }
-    // 2) נפילה: ניסיון לפי זמן (קרוב ביותר)
-      if (!pid || !measuredAt) {
-        setVideoUrl(null);
-        setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
-        return;
-      }
-    const res2 = await getVideoByClosestTime(pid, measuredAt);
-    if (res2.data?.blob_url) {
-      setVideoPlaceholder(null);
-      setVideoUrl(res2.data.blob_url);
+
+    // 2) פולבק לפי זמן (הקרוב ביותר)
+    if (!pid || !measuredAt) {
+      setVideoUrl(null);
+      setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
       return;
     }
+
+    const iso = new Date(measuredAt).toISOString();
+    const res2 = await getVideoByClosestTime(pid, iso);
+    if (res2.data?.blob_url) {
+      setVideoUrl(getVideoStreamByTimeUrl(pid, iso));
+      return;
+    }
+
     setVideoUrl(null);
     setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
   } catch (err) {
-    console.error("Error fetching video", err);
+    console.error('Error fetching video', err);
     setVideoUrl(null);
     setVideoPlaceholder('שגיאה בטעינת הסרטון');
-  }
-};
-
-
-
+  };
+}
 
   if (!patient) return <div>טוען נתונים...</div>;
 
