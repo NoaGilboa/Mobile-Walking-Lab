@@ -37,7 +37,7 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type, onBarCli
             if (elements.length > 0 && onBarClick) {
                 const index = elements[0].index;
                 const clickedMeasurement = sortedData[index];
-                    onBarClick(17);
+                    onBarClick(57);
             }
         },
         scales: {
