@@ -14,3 +14,9 @@ export const getDeviceMeasurements = (userId) => {
 export const getVideoByMeasurementId = (measurementId) => {
   return axios.get(`${BASE_URL}/video/by-measurement/${measurementId}`);
 };
+
+export const getVideoByClosestTime = (patientId, isoTime, windowSec = 900) => {
+  const params = new URLSearchParams({ patientId, t: isoTime, windowSec });
+  return axios.get(`${BASE_URL}/video/by-time?${params.toString()}`);
+};
+

@@ -248,24 +248,33 @@ function PatientDetailsPage() {
       });
   }, [userId]);
 
-  const handleVideoOpen = async (measurementId) => {
-    try {
+const handleVideoOpen = async (measurementId, measuredAt, patientId) => {
+  try {
+    // 1) ניסיון ע"פ measurementId
+    if (measurementId) {
       const res = await getVideoByMeasurementId(measurementId);
       if (res.data?.blob_url) {
         setVideoPlaceholder(null);
         setVideoUrl(res.data.blob_url);
-      } else {
-        // אין סרטון – מציגים פופ‑אפ עם פלייסהולדר
-        setVideoUrl(null);
-        setVideoPlaceholder('לא קיים סרטון מתאריך זה');
+        return;
       }
-    } catch (err) {
-      console.error("Error fetching video for measurement", err);
-      // במקרה של שגיאה – גם מציגים פלייסהולדר במקום alert
-      setVideoUrl(null);
-      setVideoPlaceholder('שגיאה בטעינת הסרטון');
     }
-  };
+    // 2) נפילה: ניסיון לפי זמן (קרוב ביותר)
+    const res2 = await getVideoByClosestTime(patientId, measuredAt);
+    if (res2.data?.blob_url) {
+      setVideoPlaceholder(null);
+      setVideoUrl(res2.data.blob_url);
+      return;
+    }
+    setVideoUrl(null);
+    setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
+  } catch (err) {
+    console.error("Error fetching video", err);
+    setVideoUrl(null);
+    setVideoPlaceholder('שגיאה בטעינת הסרטון');
+  }
+};
+
 
 
 
