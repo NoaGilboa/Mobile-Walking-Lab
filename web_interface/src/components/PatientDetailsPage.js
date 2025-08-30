@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { setESP32Command, getDeviceMeasurements, getVideoByMeasurementId } from '../api/deviceApi';
+import { setESP32Command, getDeviceMeasurements, getVideoByMeasurementId,getVideoByClosestTime } from '../api/deviceApi';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 import SpeedChart from '../components/charts/SpeedChart';
 import PressureChart from '../components/charts/PressureChart';
