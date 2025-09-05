@@ -254,39 +254,35 @@ const handleVideoOpen = async (measurementId, measuredAt) => {
 
   try {
     setVideoUrl(null);
-    setVideoPlaceholder(null);
+    setVideoPlaceholder('טוען סרטון...');
 
-    // 1) ניסיון לפי מזהה מדידה → אם קיים וידאו בשרת, ננגן דרך המסלול הממיר ל-MP4
+    // 1) אם יש measurementId - השתמש ישירות ב-streaming URL
     if (measurementId) {
-      const res = await getVideoByMeasurementId(measurementId);
-      if (res.data?.blob_url) {
-        setVideoUrl(getVideoStreamByMeasurementUrl(measurementId));
-        return;
-      }
-    }
-
-    // 2) פולבק לפי זמן (הקרוב ביותר)
-    if (!pid || !measuredAt) {
-      setVideoUrl(null);
-      setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
+      const streamUrl = getVideoStreamByMeasurementUrl(measurementId);
+      console.log('Using measurement stream URL:', streamUrl);
+      setVideoUrl(streamUrl);
       return;
     }
 
-    const iso = new Date(measuredAt).toISOString();
-    const res2 = await getVideoByClosestTime(pid, iso);
-    if (res2.data?.blob_url) {
-      setVideoUrl(getVideoStreamByTimeUrl(pid, iso));
+    // 2) אם יש זמן ו-patient ID - השתמש ישירות ב-streaming URL
+    if (pid && measuredAt) {
+      const iso = new Date(measuredAt).toISOString();
+      const streamUrl = getVideoStreamByTimeUrl(pid, iso, 900);
+      console.log('Using time-based stream URL:', streamUrl);
+      setVideoUrl(streamUrl);
       return;
     }
 
+    // 3) אם אין מספיק פרמטרים
     setVideoUrl(null);
     setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
+    
   } catch (err) {
-    console.error('Error fetching video', err);
+    console.error('Error setting up video stream:', err);
     setVideoUrl(null);
     setVideoPlaceholder('שגיאה בטעינת הסרטון');
-  };
-}
+  }
+};
 
   if (!patient) return <div>טוען נתונים...</div>;
 
