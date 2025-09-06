@@ -302,6 +302,5 @@ ISC License - see package.json for details
 - The application uses Hebrew (RTL) as the primary language
 - All timestamps are stored in UTC and converted to local time for display
 - Chart.js configuration is optimized for RTL languages
-- The ESP32 device communication requires the device to be on the same network
 - Video files are stored in Azure Blob Storage and accessed via secure URLs
 - PDF generation happens client-side for better performance
