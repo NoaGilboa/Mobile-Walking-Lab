@@ -5,8 +5,6 @@ import { getPatientsPaged } from '../api/patientApi';
 import '../index.css';
 
 function PatientListPage() {
-  const [patients, setPatients] = useState([]);
-  const [filteredPatients, setFilteredPatients] = useState([]);
   const navigate = useNavigate();
 
   const [page, setPage] = useState(0);                  // 0-based
@@ -67,7 +65,6 @@ function PatientListPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, sortConfig.key, sortConfig.direction, qName, qId]);
 
-  // פילטר בצד לקוח על הנתונים של הדף הנוכחי
   const filteredRows = useMemo(() => {
     let filtered = rows;
     if (searchName.trim()) {
@@ -123,26 +120,6 @@ function PatientListPage() {
     setPage(n);
   };
 
-  useEffect(() => {
-    const filtered = patients.filter(p => {
-      const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
-      return (
-        fullName.includes(searchName.toLowerCase()) &&
-        p.patient_id.includes(searchId)
-      );
-    });
-    filtered.sort((a, b) => {
-      const aVal = a[sortConfig.key] || '';
-      const bVal = b[sortConfig.key] || '';
-      if (sortConfig.direction === 'asc') {
-        return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-      } else {
-        return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
-      }
-    });
-    setFilteredPatients(filtered);
-  }, [searchName, searchId, patients, sortConfig]);
-
   const handleLogout = () => {
     // Remove therapist data from local storage on logout
     localStorage.removeItem('therapist');
@@ -186,14 +163,14 @@ function PatientListPage() {
           </tr>
         </thead>
         <tbody>
-          {rows.map(patient => (
+          {filteredRows.map(patient => (
             <tr key={patient.id} onClick={() => navigate(`/patients/${patient.id}`)}>
               <td>{patient.patient_id}</td>
               <td>{patient.first_name} {patient.last_name}</td>
               <td>{patient.updated_at ? new Date(patient.updated_at).toLocaleDateString('he-IL') : '—'}</td>
             </tr>
           ))}
-          {!loading && rows.length === 0 && (
+          {!loading && filteredRows.length === 0 && (
             <tr><td colSpan={3} style={{ textAlign: 'center', padding: 16 }}>לא נמצאו תוצאות</td></tr>
           )}
           {loading && (
