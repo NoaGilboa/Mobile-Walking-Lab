@@ -205,6 +205,26 @@ const generateChartImages = () => {
 - `POST /therapists/register` - Register new therapist
 - `POST /therapists/login` - Therapist login
 
+## 📑 Pagination & Debounced Search
+This app uses server-side pagination, sorting, and filtering for patients (and notes), combined with debounced client-side inputs for a snappy UX—especially on large datasets.
+### Example Requests
+
+-   **Page 2**, 10 per page, sort by updated_at DESC:
+```{=html}
+GET /patients?page=2&pageSize=10&sortBy=updated_at&sortDir=DESC
+```
+
+-   **Search by name** ("noa"), first page, sort by first_name ASC:
+```{=html}
+GET /patients?page=0&pageSize=10&sortBy=first_name&sortDir=ASC&qName=noa
+```
+    
+-   **Filter by ID** (contains `12345`), 20 per page:
+```{=html}
+ GET /patients?page=0&pageSize=20&qId=12345
+```
+
+    
 ## 📊 Data Flow
 
 1. **Authentication Flow**:
@@ -277,6 +297,55 @@ Comprehensive error handling for all API calls:
   // ... more error cases
 })
 ```
+<img width="638" height="877" alt="image" src="https://github.com/user-attachments/assets/a720372f-6e20-4d8c-8b3b-74f7156c9b18" />
+
+## ✅ Consent & Privacy (ConsentPopup)
+
+Before starting any ESP32 measurement session, the app shows a **Consent/Policy popup** to clearly inform the patient about data collection and video recording. This aligns with privacy best practices and clinical transparency.
+
+### What it does
+- Explains **what is measured** (speed, distance, hand pressure, foot lifts).
+- States that a **focused video** may be recorded during the session for clinical documentation.
+- Requires **explicit confirmation** before measurement begins.
+
+### Where it's used
+In `PatientDetailsPage.js`, the popup is opened prior to sending the `start` command to the device:
+
+```jsx
+// Open policy/consent dialog
+const requestStartEspMeasurement = useCallback(() => {
+  if (espMeasurementRunning) return;   // Already running – don't reopen
+  setShowConsent(true);
+}, [espMeasurementRunning]);
+
+// If user confirms → start device measurement
+const confirmConsentAndStart = useCallback(async () => {
+  setShowConsent(false);
+  await handleStartEspMeasurement();
+}, [handleStartEspMeasurement]);
+
+// Render
+<ConsentPopup
+  open={showConsent}
+  onConfirm={confirmConsentAndStart}
+  onCancel={() => setShowConsent(false)}
+/>
+```
+
+### Component API
+`ConsentPopup` receives three props:
+- `open: boolean` — whether the dialog is visible.
+- `onConfirm: () => void` — called when the user approves measurement.
+- `onCancel: () => void` — called when the user cancels.
+
+### UI copy (Hebrew)
+The popup mirrors the policy box on the page and includes clear Hebrew text such as:
+- **"המערכת תבצע מדידת נתוני הליכה"**
+- **"בעת המדידה תתבצע גם צילום וידאו"**
+- **"בלחיצה על 'התחלת מדידה' הינך מאשר/ת"**
+
+
+<img width="752" height="395" alt="image" src="https://github.com/user-attachments/assets/6e667fbd-7648-4e42-a2df-3ee973fecf93" />
 
 ## 🤝 Contributing
 
