@@ -535,4 +535,44 @@ button:disabled {
   text-align: center;         
 }
 
+.patient-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.patient-card-title {
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 6px;
+}
+
+.patient-card-title-without-border {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+   margin: 0;             /* מבטל את ה-margin הגדול של h3 */
+  line-height: 1.2;
+}
+
+.patient-info p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+.patient-card-header {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  justify-content: space-between; 
+  align-items: center;           
+}
+
+
+
 

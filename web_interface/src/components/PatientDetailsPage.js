@@ -404,20 +404,46 @@ function PatientDetailsPage() {
 
       {/* Patient info */}
       <div className="patient-info">
-        <p><strong>שם פרטי:</strong> {patient.first_name}</p>
-        <p><strong>שם משפחה:</strong> {patient.last_name}</p>
-        <p><strong>תעודת זהות:</strong> {patient.patient_id}</p>
-        <p><strong>תאריך לידה:</strong> {new Date(patient.birth_date).toLocaleDateString('he-IL')}</p>
-        <p><strong>גיל:</strong> {calculateAge(patient.birth_date)}</p>
-        <p><strong>מין:</strong> {patient.gender}</p>
-        <p><strong>משקל:</strong> {patient.weight} ק״ג</p>
-        <p><strong>גובה:</strong> {patient.height} ס״מ</p>
-        <p><strong>טלפון:</strong> {patient.phone}</p>
-        <p><strong>אימייל:</strong> {patient.email}</p>
-        <p><strong>מצב רפואי:</strong> {patient.medical_condition}</p>
+        <div className="patient-card-header">
+          <h3 className="patient-card-title-without-border">פרטים אישיים</h3>
+           {/* PDF Export */}
+          <PatientDetailsPDFExport
+            patient={patient}
+            noteHistory={allNotesForPdf}
+            treatmentRecommendation={treatmentRecommendation}
+            refs={{
+              manualChartRef,
+              espChartRef,
+              handPressureChartRef,
+              footLiftChartRef,
+            }}
+          />
+        </div>        
+        <div className="patient-card">
+          {[
+            { label: "שם פרטי", value: patient.first_name },
+            { label: "שם משפחה", value: patient.last_name },
+            { label: "תעודת זהות", value: patient.patient_id },
+            { label: "תאריך לידה", value: patient.birth_date && new Date(patient.birth_date).toLocaleDateString('he-IL') },
+            { label: "גיל", value: patient.birth_date && calculateAge(patient.birth_date) },
+            { label: "מין", value: patient.gender },
+            { label: "משקל", value: patient.weight && `${patient.weight} ק״ג` },
+            { label: "גובה", value: patient.height && `${patient.height} ס״מ` },
+            { label: "טלפון", value: patient.phone },
+            { label: "אימייל", value: patient.email },
+            { label: "מצב רפואי", value: patient.medical_condition },
+          ].map(
+            (field, idx) =>
+              field.value && (
+                <p key={idx}>
+                  <strong>{field.label}:</strong> {field.value}
+                </p>
+              )
+          )}
+        </div>
 
         {/* Notes Paged */}
-        <h3>הערות קודמות</h3>
+        <h3 className="patient-card-title">הערות קודמות</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             className="pager-btn pager-arrow"
@@ -495,20 +521,7 @@ function PatientDetailsPage() {
       ) : (
         <p>אין עדיין המלצת טיפול.</p>
       )}
-
-      {/* PDF Export */}
-      <PatientDetailsPDFExport
-        patient={patient}
-        noteHistory={allNotesForPdf}
-        treatmentRecommendation={treatmentRecommendation}
-        refs={{
-          manualChartRef,
-          espChartRef,
-          handPressureChartRef,
-          footLiftChartRef,
-        }}
-      />
-
+    
       {/* Consent / Policy */}
       <div className="measurement-policy-box">
         <p className="measurement-policy-title">מידע חשוב לפני התחלת מדידה</p>
@@ -591,7 +604,7 @@ function PatientDetailsPage() {
       />
 
       <p className="chart-tip">
-        💡 לחיצה על עמודה בגרף המהירויות מהבקר תפתח פופ-אפ של סרטון המדידה <br/>(אם קיים).
+        💡 לחיצה על עמודה בגרף המהירויות מהבקר תפתח פופ-אפ של סרטון המדידה <br />(אם קיים).
       </p>
 
       <SpeedChart
