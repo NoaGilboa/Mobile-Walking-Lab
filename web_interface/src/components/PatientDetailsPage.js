@@ -403,19 +403,21 @@ function PatientDetailsPage() {
   );
 
   const FromDateFilter = ({ label, value, onInputChange, onApply, onClear }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 10px' }}>
-      <span style={{ fontWeight: 600 }}>{label}</span>
-      <input
-        type="date"
-        value={value}
-        onChange={(e) => onInputChange(e.target.value)}
-        style={{ padding: '6px', borderRadius: 6, border: '1px solid #ccc' }}
-        aria-label={`${label} - בחירת תאריך`}
-      />
-      <button className="recommendation-button" onClick={onApply}>החל</button>
-      <button className="recommendation-button" onClick={onClear}>נקה</button>
-    </div>
-  );
+  <div className="filter-group">
+    <span className="filter-label">{label}</span>
+    <input
+      type="date"
+      value={value}
+      onChange={(e) => onInputChange(e.target.value)}
+      className="input-date"
+      placeholder="dd/mm/yyyy"
+      aria-label={`${label} - בחירת תאריך`}
+    />
+    <button type="button" className="btn-soft" onClick={onApply}>החל</button>
+    <button type="button" className="btn-soft secondary" onClick={onClear}>נקה</button>
+  </div>
+);
+
 
   // -------------------------------------------------------------
   // Handlers - Video

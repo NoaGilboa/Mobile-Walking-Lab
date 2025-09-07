@@ -628,3 +628,95 @@ button:disabled {
   height: 30px;
   display: inline-block;
 }
+
+/* --------- Filters (date + buttons) --------- */
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;            
+  flex-wrap: nowrap;     
+  direction: rtl;
+  margin: 6px 0 10px;
+}
+
+.filter-label {
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.input-date {
+  width: 150px;         
+  padding: 6px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.9rem;
+  color: #0f172a;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+.input-date::placeholder { color:#94a3b8; } /* Slate-400 */
+.input-date:focus {
+  outline: none;
+  border-color: #9bd2cf; /* Teal tint */
+  box-shadow: 0 0 0 4px rgba(31,107,103,0.08);
+}
+
+/* כפתורים רכים */
+.btn-soft {
+  background: #eaf5f4;     /* Pastel teal */
+  color: #1f6b67;
+  border: 1px solid #d5ebe9;
+  padding: 6px 10px; 
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition: transform .05s ease, background .15s ease, box-shadow .15s ease;
+}
+.btn-soft:hover { background:#e3f0ef; }
+.btn-soft:active { transform: translateY(1px); }
+.btn-soft.secondary {
+  background: #f7fafc;  
+  margin-right: 2px;  
+  color: #475569;
+  border: 1px solid #e5e7eb;
+}
+
+.chart-container {
+  background: #ffffff;
+  border: 1px solid #eef2f7;    /* ממש חלש */
+  border-radius: 14px;
+  padding: 14px 14px 8px;
+  box-shadow: 0 1px 6px rgba(2, 6, 23, 0.04);
+}
+
+/* כותרות שקטות */
+.header-chart-type-container {
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.chart-type-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #334155; /* Slate-700 */
+  font-weight: 700;
+}
+
+.chart-empty-overlay {
+  position: absolute;
+  top: 48px; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255,255,255,0.6);
+  display:flex; align-items:center; justify-content:center;
+  font-size: 1.05rem; font-weight: 600; color:#64748b; /* Slate-500 */
+  z-index: 2; text-align:center; padding: 1rem;
+}
+
+.toggle-soft {
+  background:#f1f5f9;
+  border:1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 4px;
+}
+
