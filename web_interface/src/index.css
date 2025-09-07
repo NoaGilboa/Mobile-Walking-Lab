@@ -758,3 +758,54 @@ button:disabled {
 .btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
 .btn-secondary{ background:#e5e7eb; color:#111; }
 
+/* עמוד בית */
+.landing-hero {
+  max-width: 900px;
+  margin: 24px auto;
+}
+
+.landing-video {
+  width: 100%;
+  max-height: 520px;
+  border-radius: 16px;
+  outline: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  background: #000; /* כדי להימנע מהבזק לבן */
+}
+
+.guide-link-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.guide-link {
+  text-decoration: none;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  transition: transform .05s ease, background-color .2s ease;
+}
+.guide-link:hover { background-color: #f3f4f6; }
+.guide-link:active { transform: scale(.99); }
+
+.landing-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* עמוד מדריך */
+.guide-container {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 16px 40px;
+  line-height: 1.75;
+}
+.guide-container h1 { margin-bottom: 8px; }
+.guide-container h2 { margin-top: 24px; }
+.guide-container h3 { margin-top: 18px; }
+.guide-container h4 { margin-top: 12px; }
+.guide-container ol { padding-inline-start: 20px; }
