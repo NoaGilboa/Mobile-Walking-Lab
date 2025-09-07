@@ -76,7 +76,7 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type, onBarCli
             chart.data = dataset;
             chart.update();
         }
-    }, [dataset, chartType]);
+   }, [dataset, chartType, chartRef]);
     return (
         <div className="chart-container" style={{ position: 'relative' }}>
             <div className="header-chart-type-container">

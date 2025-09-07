@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
-import { setESP32Command, getDeviceMeasurements, getVideoByMeasurementId,getVideoByClosestTime, getVideoStreamByMeasurementUrl, getVideoStreamByTimeUrl } from '../api/deviceApi';
+import { setESP32Command, getDeviceMeasurements, getVideoStreamByMeasurementUrl, getVideoStreamByTimeUrl } from '../api/deviceApi';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 import SpeedChart from '../components/charts/SpeedChart';
 import PressureChart from '../components/charts/PressureChart';
@@ -29,7 +29,6 @@ function PatientDetailsPage() {
   const [manualElapsedTime, setManualElapsedTime] = useState(0);
   // עבור מדידת ESP
   const [espIsTiming, setEspIsTiming] = useState(false);
-  const [espStartTime, setEspStartTime] = useState(null);
   const [espElapsedTime, setEspElapsedTime] = useState(0);
   const [speedHistory, setSpeedHistory] = useState([]);
   const [showManualSpeedSection, setShowManualSpeedSection] = useState(false);
@@ -40,7 +39,6 @@ function PatientDetailsPage() {
   const footLiftChartRef = useRef(null);
   const handPressureChartRef = useRef(null);
   const [speedData, setSpeedData] = useState([]);
-  const [distanceData, setDistanceData] = useState([]);
   const [pressureRight, setPressureRight] = useState([]);
   const [pressureLeft, setPressureLeft] = useState([]);
   const [footLiftR, setFootLiftR] = useState([]);
@@ -192,7 +190,6 @@ function PatientDetailsPage() {
       const response = await setESP32Command('start', patient.id);
       setEspMeasurementRunning(true);
       setEspIsTiming(true);
-      setEspStartTime(new Date());
       setEspElapsedTime(0);
       console.log(response.data);
       alert("✅ מדידה התחילה: " + response.data);
@@ -207,14 +204,12 @@ function PatientDetailsPage() {
       const response = await setESP32Command('stop', patient.id);
       setEspMeasurementRunning(false);
       setEspIsTiming(false);
-      setEspStartTime(null);
 
       if (!silent) {
         setTimeout(() => {
           getDeviceMeasurements(userId)
             .then(res => {
               setSpeedData(res.data.speed);
-              setDistanceData(res.data.distance);
               setPressureRight(res.data.handPressureR);
               setPressureLeft(res.data.handPressureL);
               setFootLiftR(res.data.footLiftR);
@@ -237,7 +232,6 @@ function PatientDetailsPage() {
     getDeviceMeasurements(userId)
       .then(res => {
         setSpeedData(res.data.speed);
-        setDistanceData(res.data.distance);
         setPressureRight(res.data.handPressureR);
         setPressureLeft(res.data.handPressureL);
         setFootLiftR(res.data.footLiftR);

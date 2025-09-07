@@ -74,7 +74,7 @@ const PressureChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
             chartInstance.data = dataset;
             chartInstance.update();
         }
-    }, [dataset]);
+    }, [dataset, chartRef]);
 
     return (
         <div className="chart-container" style={{ position: 'relative' }}>

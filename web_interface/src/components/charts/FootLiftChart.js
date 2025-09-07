@@ -75,7 +75,7 @@ const FootLiftChart = ({ chartType, onToggle, chartRef, leftData, rightData }) =
             chart.data = dataset;
             chart.update();
         }
-    }, [dataset, chartType]);
+    }, [dataset, chartType, chartRef]);
 
     return (
         <div className="chart-container" style={{ position: 'relative' }}>
