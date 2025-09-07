@@ -13,7 +13,6 @@ function PatientListPage() {
 
   const [rows, setRows] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
-  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const [searchName, setSearchName] = useState('');
@@ -51,7 +50,6 @@ function PatientListPage() {
 
       setRows(res.data || []);
       setTotalPages(res.totalPages || 0);
-      setTotal(res.total || 0);
       setPage(nextPage);
     } catch (e) {
       console.error('Error fetching patients (paged):', e);
