@@ -33,6 +33,7 @@ import FootLiftChart from '../components/charts/FootLiftChart';
 import { calculateAge, formatTime } from '../utils/formatUtils';
 import PatientDetailsPDFExport from '../components/PatientDetailsPDFExport';
 import VideoPopup from '../components/VideoPopup';
+import ConsentPopup from '../components/ConsentPopup';
 import '../index.css';
 
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -126,6 +127,7 @@ function PatientDetailsPage() {
   // ---------- Video popup ----------
   const [videoUrl, setVideoUrl] = useState(null);
   const [videoPlaceholder, setVideoPlaceholder] = useState(null);
+  const [showConsent, setShowConsent] = useState(false);
 
   // -------------------------------------------------------------
   // Data Loaders
@@ -470,6 +472,18 @@ function PatientDetailsPage() {
     [patient, userId]
   );
 
+  // עטיפות לפתיחת פופ-אפ ואישור התחלה
+  const requestStartEspMeasurement = useCallback(() => {
+    // אם כבר רץ – אין צורך בפופ-אפ
+    if (espMeasurementRunning) return;
+    setShowConsent(true);
+  }, [espMeasurementRunning]);
+
+  const confirmConsentAndStart = useCallback(async () => {
+    setShowConsent(false);
+    await handleStartEspMeasurement();
+  }, [handleStartEspMeasurement]);
+
   // -------------------------------------------------------------
   // Render
   // -------------------------------------------------------------
@@ -617,7 +631,7 @@ function PatientDetailsPage() {
       <div className="esp-measurement-controls">
         <button
           className="recommendation-button"
-          onClick={handleStartEspMeasurement}
+          onClick={requestStartEspMeasurement}
           disabled={espMeasurementRunning}
         >
           ▶️ התחלת מדידה בבקר
@@ -752,6 +766,14 @@ function PatientDetailsPage() {
           setVideoPlaceholder(null);
         }}
       />
+
+      {/* Consent popup */}
+      <ConsentPopup
+          open={showConsent}
+          onConfirm={confirmConsentAndStart}
+          onCancel={() => setShowConsent(false)}
+        />
+
     </div>
   );
 }

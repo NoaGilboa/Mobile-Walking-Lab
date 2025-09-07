@@ -721,3 +721,40 @@ button:disabled {
   padding: 4px;
 }
 
+/* --- modal popup --- */
+.modal-backdrop{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+
+.modal-card{
+  max-width: 640px; width: min(92vw, 640px);
+  background: #fff; color: #111;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.25);
+  padding: 35px 32px;
+  direction: rtl;
+}
+
+.modal-title{
+  margin: 0 0 8px; font-size: 1.25rem; font-weight: 700;
+}
+
+.modal-list{
+  margin: 0; padding-inline-start: 18px;
+}
+.modal-list li{ margin: .35rem 0; line-height: 1.45; }
+
+.modal-actions{
+  display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;
+}
+
+.btn-primary, .btn-secondary{
+  border: 0; cursor: pointer; border-radius: 10px; padding: 10px 14px; font-weight: 600;
+}
+.btn-primary{ background:#2c7a7b; color:#fff; }
+.btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
+.btn-secondary{ background:#e5e7eb; color:#111; }
+
