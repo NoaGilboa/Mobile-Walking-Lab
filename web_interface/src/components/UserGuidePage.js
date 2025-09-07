@@ -18,7 +18,7 @@ export default function UserGuidePage() {
 
   return (
     <div className="guide-container" dir="rtl">
-      <a id="top" />
+      <div id="top" aria-hidden="true"></div>
       <h1>מדריך משתמש</h1>
 
       <h2 id="15-3">15.3&nbsp;מדריך משתמש מקיף לאתר – מעבדת הליכה ניידת</h2>
