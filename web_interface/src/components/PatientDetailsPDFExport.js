@@ -1,5 +1,5 @@
 // PatientDetailsPDFExport.jsx
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PatientPdfDocument from '../utils/PatientPdfDocument';
 import { calculateAge } from '../utils/formatUtils';
@@ -7,7 +7,7 @@ import { calculateAge } from '../utils/formatUtils';
 function PatientDetailsPDFExport({ patient, noteHistory, treatmentRecommendation, refs }) {
     const [chartImages, setChartImages] = useState([]);
 
-    const generateChartImages = () => {
+    const generateChartImages = useCallback(() => {
         const charts = [
             { ref: refs.manualChartRef, title: 'גרף מהירויות ידניות' },
             { ref: refs.espChartRef, title: 'גרף מהירויות מהבקר' },
@@ -23,14 +23,14 @@ function PatientDetailsPDFExport({ patient, noteHistory, treatmentRecommendation
             }));
 
         setChartImages(newChartImages);
-    };
+    }, [refs.manualChartRef, refs.espChartRef, refs.handPressureChartRef, refs.footLiftChartRef]);
 
     useEffect(() => {
         const timeout = setTimeout(() => {
             generateChartImages();
         }, 1000);
         return () => clearTimeout(timeout);
-    }, [refs.manualChartRef.current, refs.espChartRef.current, refs.handPressureChartRef.current, refs.footLiftChartRef.current]);
+    }, [generateChartImages]);
 
     const enrichedPatient = {
         ...patient,
