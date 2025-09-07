@@ -88,6 +88,20 @@ function PatientDetailsPage() {
   const [footLiftR, setFootLiftR] = useState([]);
   const [footLiftL, setFootLiftL] = useState([]);
 
+  // ---------- Chart date filters (FROM) ----------
+  const [manualFromInput, setManualFromInput] = useState('');
+  const [espFromInput, setEspFromInput] = useState('');
+  const [pressureFromInput, setPressureFromInput] = useState('');
+  const [footLiftFromInput, setFootLiftFromInput] = useState('');
+
+  const [fromDates, setFromDates] = useState({
+    manual: '',   // yyyy-mm-dd
+    esp: '',
+    pressure: '',
+    footLift: ''
+  });
+
+
   // ---------- Charts refs ----------
   const manualChartRef = useRef(null);
   const espChartRef = useRef(null);
@@ -341,6 +355,69 @@ function PatientDetailsPage() {
   }, [patient, handleStopEspMeasurement]);
 
   // -------------------------------------------------------------
+  // Handlers - Chart date filters
+  // -------------------------------------------------------------
+
+  const parseInputDate = (yyyy_mm_dd) => {
+    if (!yyyy_mm_dd) return null;
+    return new Date(`${yyyy_mm_dd}T00:00:00`);
+  };
+
+  const filterByFromDate = (arr, fromStr) => {
+    if (!Array.isArray(arr) || !arr.length || !fromStr) return arr ?? [];
+    const from = parseInputDate(fromStr);
+    if (!from) return arr ?? [];
+    return arr.filter(row => {
+      const t = new Date(row.measured_at);
+      return t >= from;
+    });
+  };
+
+  // ---------- Filtered data for charts ----------
+  const manualDataFiltered = React.useMemo(
+    () => filterByFromDate(speedHistory, fromDates.manual),
+    [speedHistory, fromDates.manual]
+  );
+
+  const espDataFiltered = React.useMemo(
+    () => filterByFromDate(speedData, fromDates.esp),
+    [speedData, fromDates.esp]
+  );
+
+  const pressureLeftFiltered = React.useMemo(
+    () => filterByFromDate(pressureLeft, fromDates.pressure),
+    [pressureLeft, fromDates.pressure]
+  );
+  const pressureRightFiltered = React.useMemo(
+    () => filterByFromDate(pressureRight, fromDates.pressure),
+    [pressureRight, fromDates.pressure]
+  );
+
+  const footLiftLFiltered = React.useMemo(
+    () => filterByFromDate(footLiftL, fromDates.footLift),
+    [footLiftL, fromDates.footLift]
+  );
+  const footLiftRFiltered = React.useMemo(
+    () => filterByFromDate(footLiftR, fromDates.footLift),
+    [footLiftR, fromDates.footLift]
+  );
+
+  const FromDateFilter = ({ label, value, onInputChange, onApply, onClear }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 10px' }}>
+      <span style={{ fontWeight: 600 }}>{label}</span>
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => onInputChange(e.target.value)}
+        style={{ padding: '6px', borderRadius: 6, border: '1px solid #ccc' }}
+        aria-label={`${label} - בחירת תאריך`}
+      />
+      <button className="recommendation-button" onClick={onApply}>החל</button>
+      <button className="recommendation-button" onClick={onClear}>נקה</button>
+    </div>
+  );
+
+  // -------------------------------------------------------------
   // Handlers - Video
   // -------------------------------------------------------------
   const handleVideoOpen = useCallback(
@@ -399,14 +476,14 @@ function PatientDetailsPage() {
       {/* Header */}
       <button className="close-button" onClick={() => navigate('/patients')} title="חזור לרשימה">
         <img src="/images/arrow_back.svg" alt="חזור" className="back-icon" />
-      </button><br/>
+      </button><br />
       <h2 className="page-title">פרטי מטופל</h2>
 
       {/* Patient info */}
       <div className="patient-info">
         <div className="patient-card-header">
           <h3 className="patient-card-title-without-border">פרטים אישיים</h3>
-           {/* PDF Export */}
+          {/* PDF Export */}
           <PatientDetailsPDFExport
             patient={patient}
             noteHistory={allNotesForPdf}
@@ -418,7 +495,7 @@ function PatientDetailsPage() {
               footLiftChartRef,
             }}
           />
-        </div>        
+        </div>
         <div className="patient-card">
           {[
             { label: "שם פרטי", value: patient.first_name },
@@ -521,7 +598,7 @@ function PatientDetailsPage() {
       ) : (
         <p>אין עדיין המלצת טיפול.</p>
       )}
-    
+
       {/* Consent / Policy */}
       <div className="measurement-policy-box">
         <p className="measurement-policy-title">מידע חשוב לפני התחלת מדידה</p>
@@ -594,11 +671,18 @@ function PatientDetailsPage() {
       )}
 
       {/* Charts */}
+      <FromDateFilter
+        label="מתאריך:"
+        value={manualFromInput}
+        onInputChange={setManualFromInput}
+        onApply={() => setFromDates(prev => ({ ...prev, manual: manualFromInput }))}
+        onClear={() => { setManualFromInput(''); setFromDates(prev => ({ ...prev, manual: '' })); }}
+      />
       <SpeedChart
         chartType={chartTypes.manual}
         onToggle={() => handleToggleChartType('manual')}
         chartRef={manualChartRef}
-        data={speedHistory}
+        data={manualDataFiltered}
         title="ידניות"
         type="manual"
       />
@@ -607,30 +691,52 @@ function PatientDetailsPage() {
         💡 לחיצה על עמודה בגרף המהירויות מהבקר תפתח פופ-אפ של סרטון המדידה <br />(אם קיים).
       </p>
 
+      <FromDateFilter
+        label="מתאריך:"
+        value={espFromInput}
+        onInputChange={setEspFromInput}
+        onApply={() => setFromDates(prev => ({ ...prev, esp: espFromInput }))}
+        onClear={() => { setEspFromInput(''); setFromDates(prev => ({ ...prev, esp: '' })); }}
+      />
+
       <SpeedChart
         chartType={chartTypes.esp}
         onToggle={() => handleToggleChartType('esp')}
         chartRef={espChartRef}
-        data={speedData}
+        data={espDataFiltered}
         title="מהבקר"
         type="esp"
         onBarClick={handleVideoOpen}
       />
 
+      <FromDateFilter
+        label="מתאריך:"
+        value={pressureFromInput}
+        onInputChange={setPressureFromInput}
+        onApply={() => setFromDates(prev => ({ ...prev, pressure: pressureFromInput }))}
+        onClear={() => { setPressureFromInput(''); setFromDates(prev => ({ ...prev, pressure: '' })); }}
+      />
       <PressureChart
         chartType={chartTypes.pressure}
         onToggle={() => handleToggleChartType('pressure')}
         chartRef={handPressureChartRef}
-        leftData={pressureLeft}
-        rightData={pressureRight}
+        leftData={pressureLeftFiltered}
+        rightData={pressureRightFiltered}
       />
 
+      <FromDateFilter
+        label="מתאריך:"
+        value={footLiftFromInput}
+        onInputChange={setFootLiftFromInput}
+        onApply={() => setFromDates(prev => ({ ...prev, footLift: footLiftFromInput }))}
+        onClear={() => { setFootLiftFromInput(''); setFromDates(prev => ({ ...prev, footLift: '' })); }}
+      />
       <FootLiftChart
         chartType={chartTypes.footLift}
         onToggle={() => handleToggleChartType('footLift')}
         chartRef={footLiftChartRef}
-        leftData={footLiftL}
-        rightData={footLiftR}
+        leftData={footLiftLFiltered}
+        rightData={footLiftRFiltered}
       />
 
       {/* Video popup */}
