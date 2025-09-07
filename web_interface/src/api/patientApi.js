@@ -45,4 +45,28 @@ export const getSpeedHistory = (patientId) => {
   return axios.get(`${BASE_URL}/patients/${patientId}/speed-history`);
 };
 
-  
+export const getPatientsPaged = (opts = {}) => {
+  return axios.get(`${BASE_URL}/patients`, { params: toParams(opts) })
+    .then(({ data }) => normalizePaged(data));
+};
+
+export const getNotesByPatientIdPaged = (patientId, opts = {}) =>
+  axios.get(`${BASE_URL}/patients/${patientId}/notes`, { params: toParams(opts) })
+    .then(({ data }) => normalizePaged(data));
+
+
+ const toParams = (opts = {}) => {
+  const { page, pageSize, sortBy, sortDir, qName, qId } = opts;
+  const params = {};
+  if (page !== undefined) params.page = page;
+  if (pageSize !== undefined) params.pageSize = pageSize;
+  if (sortBy) params.sortBy = sortBy;
+  if (sortDir) params.sortDir = sortDir;
+  if (qName) params.qName = qName;
+  if (qId) params.qId = qId;
+  return params;
+};
+
+const normalizePaged = (resData) => Array.isArray(resData)
+  ? { data: resData, page: 0, pageSize: resData.length, total: resData.length, totalPages: 1, hasNext: false, hasPrev: false }
+  : resData;

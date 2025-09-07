@@ -470,3 +470,57 @@ button:disabled {
 
 
 
+.pager {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pager .pager-btn {
+  min-width: 36px;            
+  height: 36px;               
+  font-size: 14px; 
+  padding: 0 10px;
+  border: 1px solid #cfd8dc;
+  background: #fff;
+  color: #146c6c;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 400;   
+}
+
+.pager .pager-btn:hover:not(:disabled) {
+  background: #f5f7f8;
+}
+
+.pager .pager-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  color: #90a4ae;            
+  border-color: #e0e6ea;
+}
+
+.pager .pager-btn.active {
+  background: #146c6c;        
+  border-color: #146c6c;
+  color: #fff;   
+  font-weight: 600;            
+}
+
+.pager .pager-arrow { min-width: 40px; }        
+.pager .chev {
+  font-size: 28px;     
+  font-weight: 500;    
+  line-height: 1;
+  display: inline-block;
+  transform: translateY(-1px);
+}
+
+.pager .pager-dots {
+  padding: 0 6px;
+  color: #607d8b;
+}
+
+
