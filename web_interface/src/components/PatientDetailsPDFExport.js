@@ -4,7 +4,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import PatientPdfDocument from '../utils/PatientPdfDocument';
 import { calculateAge } from '../utils/formatUtils';
 
-function PatientDetailsPDFExport({ patient, noteHistory, treatmentRecommendation, refs }) {
+function PatientDetailsPDFExport({ patient, noteHistory = [], treatmentRecommendation, refs }) {
     const [chartImages, setChartImages] = useState([]);
 
     const generateChartImages = useCallback(() => {

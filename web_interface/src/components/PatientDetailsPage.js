@@ -1,7 +1,7 @@
 // PatientDetailsPage.js
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPatientById, getNotesByPatientId, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
+import { getPatientById, getNotesByPatientIdPaged, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
 import { setESP32Command, getDeviceMeasurements, getVideoStreamByMeasurementUrl, getVideoStreamByTimeUrl } from '../api/deviceApi';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 import SpeedChart from '../components/charts/SpeedChart';
@@ -18,8 +18,20 @@ function PatientDetailsPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [patient, setPatient] = useState(null);
+  // דפדוף הערות
+  const [notesPage, setNotesPage] = useState(0);        // 0-based
+  const NOTES_PAGE_SIZE = 3;
+  const [notesPaged, setNotesPaged] = useState({
+    data: [],
+    page: 0,
+    pageSize: NOTES_PAGE_SIZE,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+  });
+  const [loadingNotes, setLoadingNotes] = useState(false);
   const [notes, setNotes] = useState('');
-  const [noteHistory, setNoteHistory] = useState([]);
   const [treatmentRecommendation, setTreatmentRecommendation] = useState('');
   const [loadingRecommendation, setLoadingRecommendation] = useState(false);
   const [manualDistance, setManualDistance] = useState('');
@@ -61,6 +73,23 @@ function PatientDetailsPage() {
     }));
   };
 
+  const loadNotesPage = useCallback(async (page = 0) => {
+    setLoadingNotes(true);
+    try {
+      const res = await getNotesByPatientIdPaged(userId, {
+        page,
+        pageSize: NOTES_PAGE_SIZE,
+        sortBy: 'created_at',
+        sortDir: 'DESC',
+      });
+      setNotesPaged(res);
+      setNotesPage(page);
+    } catch (e) {
+      console.error('Error fetching paged notes', e);
+    } finally {
+      setLoadingNotes(false);
+    }
+  }, [userId]);
 
 
   useEffect(() => {
@@ -72,20 +101,13 @@ function PatientDetailsPage() {
       .catch(error => {
         console.error("Error fetching patient details", error);
       });
-
     // בקשה להיסטורית הערות
-    getNotesByPatientId(userId)
-      .then(response => {
-        setNoteHistory(response.data);
-      })
-      .catch(error => {
-        console.error("Error fetching notes history", error);
-      });
+    loadNotesPage(0);
     getSpeedHistory(userId)
       .then(res => setSpeedHistory(res.data.reverse()))
       .catch(err => console.error("שגיאה בשליפת היסטוריית מהירויות", err));
 
-  }, [userId]);
+  }, [userId, loadNotesPage]);
 
   const handleSaveNotes = () => {
     const therapist = JSON.parse(localStorage.getItem('therapist'));
@@ -100,11 +122,9 @@ function PatientDetailsPage() {
       .then(() => {
         setNotes('');
         // רענון היסטורית הערות
-        return getNotesByPatientId(userId);
+        return loadNotesPage(0);
       })
-      .then(response => {
-        setNoteHistory(response.data);
-      })
+      .then(() => { })
       .catch(error => {
         console.error("Error saving note", error);
       });
@@ -242,41 +262,41 @@ function PatientDetailsPage() {
       });
   }, [userId]);
 
-const handleVideoOpen = async (measurementId, measuredAt) => {
-  const pid = patient?.id ?? Number(userId);
-  console.log('open video params', { measurementId, measuredAt, pid: patient?.id, userId });
+  const handleVideoOpen = async (measurementId, measuredAt) => {
+    const pid = patient?.id ?? Number(userId);
+    console.log('open video params', { measurementId, measuredAt, pid: patient?.id, userId });
 
-  try {
-    setVideoUrl(null);
-    setVideoPlaceholder('טוען סרטון...');
+    try {
+      setVideoUrl(null);
+      setVideoPlaceholder('טוען סרטון...');
 
-    // 1) אם יש measurementId - השתמש ישירות ב-streaming URL
-    if (measurementId) {
-      const streamUrl = getVideoStreamByMeasurementUrl(measurementId);
-      console.log('Using measurement stream URL:', streamUrl);
-      setVideoUrl(streamUrl);
-      return;
+      // 1) אם יש measurementId - השתמש ישירות ב-streaming URL
+      if (measurementId) {
+        const streamUrl = getVideoStreamByMeasurementUrl(measurementId);
+        console.log('Using measurement stream URL:', streamUrl);
+        setVideoUrl(streamUrl);
+        return;
+      }
+
+      // 2) אם יש זמן ו-patient ID - השתמש ישירות ב-streaming URL
+      if (pid && measuredAt) {
+        const iso = new Date(measuredAt).toISOString();
+        const streamUrl = getVideoStreamByTimeUrl(pid, iso, 900);
+        console.log('Using time-based stream URL:', streamUrl);
+        setVideoUrl(streamUrl);
+        return;
+      }
+
+      // 3) אם אין מספיק פרמטרים
+      setVideoUrl(null);
+      setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
+
+    } catch (err) {
+      console.error('Error setting up video stream:', err);
+      setVideoUrl(null);
+      setVideoPlaceholder('שגיאה בטעינת הסרטון');
     }
-
-    // 2) אם יש זמן ו-patient ID - השתמש ישירות ב-streaming URL
-    if (pid && measuredAt) {
-      const iso = new Date(measuredAt).toISOString();
-      const streamUrl = getVideoStreamByTimeUrl(pid, iso, 900);
-      console.log('Using time-based stream URL:', streamUrl);
-      setVideoUrl(streamUrl);
-      return;
-    }
-
-    // 3) אם אין מספיק פרמטרים
-    setVideoUrl(null);
-    setVideoPlaceholder('לא נמצא סרטון תואם למדידה');
-    
-  } catch (err) {
-    console.error('Error setting up video stream:', err);
-    setVideoUrl(null);
-    setVideoPlaceholder('שגיאה בטעינת הסרטון');
-  }
-};
+  };
 
   if (!patient) return <div>טוען נתונים...</div>;
 
@@ -299,16 +319,47 @@ const handleVideoOpen = async (measurementId, measuredAt) => {
         <p><strong>אימייל:</strong> {patient.email}</p>
         <p><strong>מצב רפואי:</strong> {patient.medical_condition}</p>
         <h3>הערות קודמות</h3>
-        <ul className="note-history">
-          {noteHistory.map((item, index) => (
-            <li key={index} className="note-item">
-              <p>{item.note}</p>
-              <p className="note-meta">
-                נכתב על ידי <strong>{item.created_by_name}</strong> בתאריך {new Date(item.created_at).toLocaleString('he-IL')}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            className="pager-btn pager-arrow"
+            aria-label="לעמוד הקודם"
+            disabled={loadingNotes || !notesPaged.hasPrev}
+            onClick={() => loadNotesPage(Math.max(0, notesPage - 1))}
+          >
+            <span aria-hidden="true" className="chev">‹</span>
+          </button>
+
+          <div style={{ flex: 1 }}>
+            {loadingNotes ? (
+              <div style={{ textAlign: 'center', padding: 8 }}>טוען הערות…</div>
+            ) : notesPaged.data.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 8 }}>אין הערות</div>
+            ) : (
+              <ul className="note-history">
+                {notesPaged.data.map((item) => (
+                  <li key={item.id ?? item.created_at} className="note-item">
+                    <p>{item.note}</p>
+                    <p className="note-meta">
+                      נכתב על ידי <strong>{item.created_by_name}</strong> בתאריך {new Date(item.created_at).toLocaleString('he-IL')}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div style={{ textAlign: 'center', fontSize: 12, color: '#666' }}>
+              כרטיסיית הערות {notesPaged.totalPages ? notesPaged.page + 1 : 1} מתוך {notesPaged.totalPages || 1}
+            </div>
+          </div>
+
+          <button
+            className="pager-btn pager-arrow"
+            aria-label="לעמוד הבא"
+            disabled={loadingNotes || !notesPaged.hasNext}
+            onClick={() => loadNotesPage(notesPage + 1)}
+          >
+            <span aria-hidden="true" className="chev">›</span>
+          </button>
+        </div>
       </div>
 
       <textarea placeholder="רשום הערות" value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -339,7 +390,7 @@ const handleVideoOpen = async (measurementId, measuredAt) => {
       )}
       <PatientDetailsPDFExport
         patient={patient}
-        noteHistory={noteHistory}
+        noteHistory={notesPage.data}
         treatmentRecommendation={treatmentRecommendation}
         refs={{
           manualChartRef,
@@ -408,7 +459,7 @@ const handleVideoOpen = async (measurementId, measuredAt) => {
         type={'manual'}
       />
 
-    <p className="chart-tip">
+      <p className="chart-tip">
         💡 לחיצה על עמודה בגרף המהירויות מהבקר תפתח פופ‑אפ של סרטון המדידה (אם קיים).
       </p>
       <SpeedChart
@@ -438,8 +489,8 @@ const handleVideoOpen = async (measurementId, measuredAt) => {
         rightData={footLiftR}
       />
 
-      <VideoPopup videoUrl={videoUrl} placeholderText={videoPlaceholder} onClose={() => { setVideoUrl(null); setVideoPlaceholder(null); }}/>    
-     
+      <VideoPopup videoUrl={videoUrl} placeholderText={videoPlaceholder} onClose={() => { setVideoUrl(null); setVideoPlaceholder(null); }} />
+
     </div >
 
   );
