@@ -399,7 +399,7 @@ function PatientDetailsPage() {
       {/* Header */}
       <button className="close-button" onClick={() => navigate('/patients')} title="חזור לרשימה">
         <img src="/images/arrow_back.svg" alt="חזור" className="back-icon" />
-      </button>
+      </button><br/>
       <h2 className="page-title">פרטי מטופל</h2>
 
       {/* Patient info */}

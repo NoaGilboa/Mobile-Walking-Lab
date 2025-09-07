@@ -33,10 +33,10 @@ function PatientListPage() {
   const therapistData = JSON.parse(localStorage.getItem('therapist'));
   const therapistName = therapistData ? therapistData.name : 'מטפל';
 
-  const loadPage = async (nextPage = 0, nextSort = sortConfig, nextPageSize = pageSize, name = qName, id = qId ) => {
+  const loadPage = async (nextPage = 0, nextSort = sortConfig, nextPageSize = pageSize, name = qName, id = qId) => {
     setLoading(true);
     try {
-      const sortBy  = nextSort.key;
+      const sortBy = nextSort.key;
       const sortDir = nextSort.direction.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
       const res = await getPatientsPaged({
@@ -44,8 +44,8 @@ function PatientListPage() {
         pageSize: nextPageSize,
         sortBy,
         sortDir,
-        qName: name || undefined, 
-        qId: id || undefined 
+        qName: name || undefined,
+        qId: id || undefined
       });
 
       setRows(res.data || []);
@@ -100,7 +100,7 @@ function PatientListPage() {
 
     // תמיד מציגים את 1 ואת האחרון; בין לבין – שכנים של העמוד הנוכחי
     const start = Math.max(2, cur - maxNeighbors);
-    const end   = Math.min(total - 1, cur + maxNeighbors);
+    const end = Math.min(total - 1, cur + maxNeighbors);
 
     add(1);
     if (start > 2) add('…');
@@ -123,13 +123,20 @@ function PatientListPage() {
     localStorage.removeItem('therapist');
     navigate('/login');
   };
-  
+
   return (
     <div className="patient-list-container">
       <div className="header-container">
-         <button className="logout-button" onClick={handleLogout}>התנתק</button>
-        <div className="welcome-message">ברוך הבא {therapistName}</div>
+        <button className="logout-button" onClick={handleLogout}>התנתק</button>
+        <div className="welcome-row">
+          <span className="welcome-message">ברוך הבא, {therapistName}</span>
+          <span className="context-id">
+            <img src="/images/hospital.svg" alt="" aria-hidden="true" className="context-id__icon" />
+            קפלן · פיזיותרפיה · תפקיד: מטפל/ת
+          </span>
+        </div>
       </div>
+
       <h2>רשימת מטופלים</h2>
 
       <div className="search-container">
@@ -140,14 +147,14 @@ function PatientListPage() {
       <button className="add-patient-button" onClick={() => navigate('/patients/add')}>הוסף מטופל חדש</button>
 
 
-      <div style={{ display: 'flex', alignItems: 'center'}}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
         <label style={{ marginInlineStart: 'auto' }}>
           כמות רשומות :{' '}
           <select
             value={pageSize}
             onChange={(e) => { setPage(0); setPageSize(Number(e.target.value)); }}
-              style={{ width: '60px', padding: '4px 6px', fontSize: '14px' , marginRight:'3px'}}>
-            {[1,4, 10, 20, 100].map(s => <option key={s} value={s}>{s}</option>)}
+            style={{ width: '60px', padding: '4px 6px', fontSize: '14px', marginRight: '3px' }}>
+            {[1, 4, 10, 20, 100].map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </label>
       </div>
@@ -155,7 +162,7 @@ function PatientListPage() {
       <table className="patient-table">
         <thead>
           <tr>
-          <th onClick={() => sortPatients('patient_id')}>ת"ז{getSortArrow('patient_id')}</th>
+            <th onClick={() => sortPatients('patient_id')}>ת"ז{getSortArrow('patient_id')}</th>
             <th onClick={() => sortPatients('first_name')}>שם מלא{getSortArrow('first_name')}</th>
             <th onClick={() => sortPatients('updated_at')}>עודכן לאחרונה{getSortArrow('updated_at')}</th>
           </tr>
@@ -179,15 +186,15 @@ function PatientListPage() {
 
       <nav className="pager" aria-label="דפדוף עמודים" dir="rtl" style={{ marginTop: 12 }}>
         <button
-    className="pager-btn pager-arrow"
-    disabled={loading || page === 0}
-    onClick={() => setPage(0)}
-    aria-label="לעמוד הראשון"
-  >
-    <span aria-hidden="true" className="chev">≪</span>
-  </button>
+          className="pager-btn pager-arrow"
+          disabled={loading || page === 0}
+          onClick={() => setPage(0)}
+          aria-label="לעמוד הראשון"
+        >
+          <span aria-hidden="true" className="chev">≪</span>
+        </button>
         <button
-            className="pager-btn pager-arrow"
+          className="pager-btn pager-arrow"
           disabled={loading || page === 0}
           onClick={() => setPage(p => Math.max(0, p - 1))}
           aria-label="לעמוד הקודם"
@@ -212,8 +219,8 @@ function PatientListPage() {
         )}
 
         <button
-            className="pager-btn pager-arrow"
-            disabled={loading || (page + 1) >= (totalPages || 1)}
+          className="pager-btn pager-arrow"
+          disabled={loading || (page + 1) >= (totalPages || 1)}
           onClick={() => setPage(p => p + 1)}
           aria-label="לעמוד הבא"
         >
@@ -221,17 +228,17 @@ function PatientListPage() {
         </button>
 
         <button
-    className="pager-btn pager-arrow"
-    disabled={loading || (page + 1) >= (totalPages || 1)}
-    onClick={() => setPage((totalPages || 1) - 1)}
-    aria-label="לעמוד האחרון"
-  >
-    <span aria-hidden="true" className="chev">≫</span>
-  </button>
+          className="pager-btn pager-arrow"
+          disabled={loading || (page + 1) >= (totalPages || 1)}
+          onClick={() => setPage((totalPages || 1) - 1)}
+          aria-label="לעמוד האחרון"
+        >
+          <span aria-hidden="true" className="chev">≫</span>
+        </button>
 
       </nav>
 
-    </div>
+    </div >
   );
 }
 

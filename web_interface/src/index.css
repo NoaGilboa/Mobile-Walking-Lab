@@ -198,11 +198,11 @@ button:disabled {
 .close-button {
   background: transparent;
   border: none;
-  padding: 3;
+  padding: 4px;
   cursor: pointer;
   display: flex;
   position: absolute;
-  left: 20px;
+  left: 5px;
 }
 
 .back-icon {
@@ -215,7 +215,7 @@ button:disabled {
 }
 
 .close-button:hover {
-  color: #2c7a7b;
+  color: #b0e1e2;
 }
 
 .header-container {
@@ -230,6 +230,32 @@ button:disabled {
   font-size: 18px;
   font-weight: bold;
   color: #2c3e50;
+}
+.welcome-row{
+  display: flex;
+  flex-direction: column;   
+  align-items: flex-end;    
+  text-align: right;        
+  line-height: 1.4;
+}
+.context-id{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#6b7280;      /* אפור עדין */
+  font-size:.95rem;
+}
+
+.context-id__icon{
+  width:16px;
+  height:16px;
+  opacity:.7;
+}
+
+/* רספונסיבי: במסך צר – ירד שורה מסודרת */
+@media (max-width:600px){
+  .header-container{ flex-wrap:wrap; }
+  .welcome-row{ width:100%; justify-content:flex-end; }
 }
 
 .logout-button {
@@ -574,5 +600,31 @@ button:disabled {
 }
 
 
+/* כפתור PDF – גרסה עדינה ומקצועית */
+.pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 30px;
+  margin-bottom: 6px;
+  color: #2f66f6;
+  cursor: pointer;
 
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.05s ease;
+}
 
+.pdf-btn:hover {
+  background: #f0f4ff; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.pdf-btn:active {
+  transform: scale(0.96);
+}
+
+.pdf-btn__icon {
+  width: 60px;
+  height: 30px;
+  display: inline-block;
+}
