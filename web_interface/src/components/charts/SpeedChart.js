@@ -91,7 +91,7 @@ const SpeedChart = ({ chartType, onToggle, chartRef, data, title, type, onBarCli
             {isEmpty && (
                 <div style={{
                     position: 'absolute',
-                    top: 50,
+                    top: 0,
                     left: 0,
                     right: 0,
                     bottom: 0,
