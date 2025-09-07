@@ -121,7 +121,7 @@ function PatientListPage() {
   const handleLogout = () => {
     // Remove therapist data from local storage on logout
     localStorage.removeItem('therapist');
-    navigate('/login');
+    navigate('/');
   };
 
   return (
