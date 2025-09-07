@@ -358,12 +358,12 @@ function PatientDetailsPage() {
   // Handlers - Chart date filters
   // -------------------------------------------------------------
 
-  const parseInputDate = (yyyy_mm_dd) => {
+  const parseInputDate = useCallback((yyyy_mm_dd) => {
     if (!yyyy_mm_dd) return null;
     return new Date(`${yyyy_mm_dd}T00:00:00`);
-  };
+  }, []);
 
-  const filterByFromDate = (arr, fromStr) => {
+  const filterByFromDate = useCallback((arr, fromStr) => {
     if (!Array.isArray(arr) || !arr.length || !fromStr) return arr ?? [];
     const from = parseInputDate(fromStr);
     if (!from) return arr ?? [];
@@ -371,52 +371,54 @@ function PatientDetailsPage() {
       const t = new Date(row.measured_at);
       return t >= from;
     });
-  };
+  }, [parseInputDate]);
 
   // ---------- Filtered data for charts ----------
   const manualDataFiltered = React.useMemo(
     () => filterByFromDate(speedHistory, fromDates.manual),
-    [speedHistory, fromDates.manual]
+    [speedHistory, fromDates.manual, filterByFromDate]   // ⬅️ הוספנו את filterByFromDate
   );
 
   const espDataFiltered = React.useMemo(
     () => filterByFromDate(speedData, fromDates.esp),
-    [speedData, fromDates.esp]
+    [speedData, fromDates.esp, filterByFromDate]
   );
 
   const pressureLeftFiltered = React.useMemo(
     () => filterByFromDate(pressureLeft, fromDates.pressure),
-    [pressureLeft, fromDates.pressure]
+    [pressureLeft, fromDates.pressure, filterByFromDate]
   );
+
   const pressureRightFiltered = React.useMemo(
     () => filterByFromDate(pressureRight, fromDates.pressure),
-    [pressureRight, fromDates.pressure]
+    [pressureRight, fromDates.pressure, filterByFromDate]
   );
 
   const footLiftLFiltered = React.useMemo(
     () => filterByFromDate(footLiftL, fromDates.footLift),
-    [footLiftL, fromDates.footLift]
+    [footLiftL, fromDates.footLift, filterByFromDate]
   );
+
   const footLiftRFiltered = React.useMemo(
     () => filterByFromDate(footLiftR, fromDates.footLift),
-    [footLiftR, fromDates.footLift]
+    [footLiftR, fromDates.footLift, filterByFromDate]
   );
 
   const FromDateFilter = ({ label, value, onInputChange, onApply, onClear }) => (
-  <div className="filter-group">
-    <span className="filter-label">{label}</span>
-    <input
-      type="date"
-      value={value}
-      onChange={(e) => onInputChange(e.target.value)}
-      className="input-date"
-      placeholder="dd/mm/yyyy"
-      aria-label={`${label} - בחירת תאריך`}
-    />
-    <button type="button" className="btn-soft" onClick={onApply}>החל</button>
-    <button type="button" className="btn-soft secondary" onClick={onClear}>נקה</button>
-  </div>
-);
+    <div className="filter-group">
+      <span className="filter-label">{label}</span>
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => onInputChange(e.target.value)}
+        className="input-date"
+        placeholder="dd/mm/yyyy"
+        aria-label={`${label} - בחירת תאריך`}
+      />
+      <button type="button" className="btn-soft" onClick={onApply}>החל</button>
+      <button type="button" className="btn-soft secondary" onClick={onClear}>נקה</button>
+    </div>
+  );
 
 
   // -------------------------------------------------------------
