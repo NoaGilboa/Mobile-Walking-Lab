@@ -1,10 +1,11 @@
 // src/pages/UserGuidePage.js
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../index.css';
 
 export default function UserGuidePage() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // גלילה אוטומטית לעוגן אם הגיעו עם #hash
@@ -16,9 +17,21 @@ export default function UserGuidePage() {
     }
   }, [location]);
 
-  return (
+    return (
     <div className="guide-container" dir="rtl">
       <div id="top" aria-hidden="true"></div>
+
+      {/* כפתור חזרה לעמוד הבית */}
+      <div className="guide-actions" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <button
+          type="button"
+          className="landing-button"
+          onClick={() => navigate('/')}
+          aria-label="חזרה לעמוד הבית"
+        >
+          חזרה לעמוד הבית
+        </button>
+      </div>
       <h1>מדריך משתמש</h1>
 
       <h2 id="15-3">15.3&nbsp;מדריך משתמש מקיף לאתר – מעבדת הליכה ניידת</h2>
