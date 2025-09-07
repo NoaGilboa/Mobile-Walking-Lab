@@ -1,7 +1,7 @@
 // PatientDetailsPage.js
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPatientById, getNotesByPatientIdPaged, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
+import { getPatientById, getNotesByPatientId, getNotesByPatientIdPaged, addNoteToPatient, getTreatmentRecommendation, saveSpeedMeasurement, getSpeedHistory } from '../api/patientApi';
 import { setESP32Command, getDeviceMeasurements, getVideoStreamByMeasurementUrl, getVideoStreamByTimeUrl } from '../api/deviceApi';
 import { Chart as ChartJS, BarElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, } from 'chart.js';
 import SpeedChart from '../components/charts/SpeedChart';
@@ -31,6 +31,7 @@ function PatientDetailsPage() {
     hasPrev: false,
   });
   const [loadingNotes, setLoadingNotes] = useState(false);
+  const [allNotesForPdf, setAllNotesForPdf] = useState([]); 
   const [notes, setNotes] = useState('');
   const [treatmentRecommendation, setTreatmentRecommendation] = useState('');
   const [loadingRecommendation, setLoadingRecommendation] = useState(false);
@@ -73,6 +74,16 @@ function PatientDetailsPage() {
     }));
   };
 
+  const loadAllNotesForPdf = useCallback(async () => {
+  try {
+    const res = await getNotesByPatientId(userId); // ללא page/pageSize
+    setAllNotesForPdf(Array.isArray(res.data) ? res.data : []);
+  } catch (e) {
+    console.error('Error fetching all notes for PDF', e);
+    setAllNotesForPdf([]);
+  }
+}, [userId]);
+
   const loadNotesPage = useCallback(async (page = 0) => {
     setLoadingNotes(true);
     try {
@@ -103,11 +114,12 @@ function PatientDetailsPage() {
       });
     // בקשה להיסטורית הערות
     loadNotesPage(0);
+    loadAllNotesForPdf();
     getSpeedHistory(userId)
       .then(res => setSpeedHistory(res.data.reverse()))
       .catch(err => console.error("שגיאה בשליפת היסטוריית מהירויות", err));
 
-  }, [userId, loadNotesPage]);
+ }, [userId, loadNotesPage, loadAllNotesForPdf]);
 
   const handleSaveNotes = () => {
     const therapist = JSON.parse(localStorage.getItem('therapist'));
@@ -124,7 +136,7 @@ function PatientDetailsPage() {
         // רענון היסטורית הערות
         return loadNotesPage(0);
       })
-      .then(() => { })
+      .then(() => loadAllNotesForPdf())
       .catch(error => {
         console.error("Error saving note", error);
       });
@@ -390,7 +402,7 @@ function PatientDetailsPage() {
       )}
       <PatientDetailsPDFExport
         patient={patient}
-        noteHistory={notesPage.data}
+        noteHistory={allNotesForPdf}
         treatmentRecommendation={treatmentRecommendation}
         refs={{
           manualChartRef,
