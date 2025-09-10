@@ -131,8 +131,7 @@ function PatientListPage() {
         <div className="welcome-row">
           <span className="welcome-message">ברוך הבא, {therapistName}</span>
           <span className="context-id">
-            <img src="/images/hospital.svg" alt="" aria-hidden="true" className="context-id__icon" />
-            קפלן · פיזיותרפיה · תפקיד: מטפל/ת
+            הרצפלד · פיזיותרפיה · תפקיד: מטפל/ת
           </span>
         </div>
       </div>
