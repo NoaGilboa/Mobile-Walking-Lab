@@ -682,7 +682,7 @@ function PatientDetailsPage() {
 
           {lastSpeed && (
             <p className="speed-result">
-              ✅ מהירות מחושבת: <strong>{lastSpeed} קמ״ש</strong>
+              ✅ מהירות מחושבת: <strong>{lastSpeed}מטר לשנייה</strong>
             </p>
           )}
         </div>
